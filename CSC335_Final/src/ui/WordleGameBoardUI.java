@@ -18,14 +18,18 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 	
 	// some settings
 	public static final int WORD_SIZE = 5, ATTEMPT_AMOUNT = 6;
-	public static final int SIZE_PADDING = 190;
+	public static final int BOARD_HORI_PADDING = 190, KEYBOARD_HORI_PADDING = 100;
 	
 	JPanel displayPanel;
-	GameBoardUITile[][] tiles;
-	Font font;
+	JPanel keyboardPanel;
+	GameBoardUITile[][] gameBoardTiles;
+	Font gameBoardFont, keyboardFont;
 	JLabel notification;
 	int activeRow, activeCol;
 	Dimension size;
+	
+	String[][] keyboardButtonCharacters;
+	KeyboardUITile[][] keyboardTiles;
 	
 	public WordleGameBoardUI(Dimension size) {
 		this.size = size;
@@ -36,11 +40,20 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 		setFocusable(true);
 		requestFocusInWindow();
 		addKeyListener(this);
+
+		this.keyboardButtonCharacters = new String[][] {
+			{"Q","W","E","R","T","Y","U","I","O","P"},
+			{"A","S","D","F","G","H","J","K","L"},
+			{"ENTER","Z","X","C","V","B","N","M","BACK"}
+		};
+		this.activeRow = 0;
+		this.activeCol = 0;
+		this.gameBoardFont = new Font("Arial", Font.BOLD, 55);
+		this.keyboardFont = new Font("Arial", Font.BOLD, 20);
 		
 		// setup the displayPanel
 		add(setupDisplayPanel());
-		this.activeRow = 0;
-		this.activeCol = 0;
+		add(setupKeyboardPanel());
 	}
 	
 	/**
@@ -51,10 +64,10 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 	 */
 	JPanel setupDisplayPanel() {
 		// setup the jpanel
-		int panelWidth = size.width - SIZE_PADDING*2;
-		int panelHeight = toInt(size.height * 0.65);
+		int panelWidth = size.width - BOARD_HORI_PADDING*2;
+		int panelHeight = toInt(size.height * 0.61);
 		displayPanel = new JPanel();
-		displayPanel.setBounds(SIZE_PADDING-15, 30, panelWidth, panelHeight+35);
+		displayPanel.setBounds(BOARD_HORI_PADDING-15, 30, panelWidth, panelHeight+35);
 		displayPanel.setBackground(getBackground());
 		displayPanel.setLayout(null);
 		
@@ -65,24 +78,23 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 		// way too long trying to figure them out, so instead of that I'll just
 		// place the tiles manually on the screen w some simple math
 		
-		this.font = new Font("Arial", Font.BOLD, 55);
 		int cellPadding = 2;
 		int cellWidth = toInt(panelWidth / (double)WORD_SIZE);
 		int cellHeight = toInt(panelHeight / (double)ATTEMPT_AMOUNT);
 		
 		// fill in the display cells
-		tiles = new GameBoardUITile[ATTEMPT_AMOUNT][WORD_SIZE];
+		gameBoardTiles = new GameBoardUITile[ATTEMPT_AMOUNT][WORD_SIZE];
 		for(int y = 0; y < ATTEMPT_AMOUNT; y++) {
 			for(int x = 0; x < WORD_SIZE; x++) {
-				tiles[y][x] = new GameBoardUITile(this, font);
+				gameBoardTiles[y][x] = new GameBoardUITile(this, gameBoardFont);
 				
 				// TILE BOUNDS:
 				// x: x*cellWidth + padding
 				// y: y*cellHeight + padding
 				// width: cellWidth - padding*2
 				// height: cellHeight - padding*2
-				tiles[y][x].setBounds(x * cellWidth+cellPadding, y * cellHeight+cellPadding, cellWidth-cellPadding*2, cellHeight-cellPadding*2);
-				displayPanel.add(tiles[y][x]);
+				gameBoardTiles[y][x].setBounds(x * cellWidth+cellPadding, y * cellHeight+cellPadding, cellWidth-cellPadding*2, cellHeight-cellPadding*2);
+				displayPanel.add(gameBoardTiles[y][x]);
 			}
 		}
 
@@ -92,6 +104,44 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 		displayPanel.add(notification);
 		
 		return displayPanel;
+	}
+	
+	JPanel setupKeyboardPanel() {
+		keyboardPanel = new JPanel();
+		keyboardPanel.setBackground(getBackgroundColor());
+		keyboardPanel.setLayout(null);
+		int panelWidth = size.width - KEYBOARD_HORI_PADDING*2;
+		
+		int panelHeight = toInt(size.height - 610);
+		keyboardPanel.setBounds(KEYBOARD_HORI_PADDING-15, 530, panelWidth, panelHeight+35);
+		
+		int keyTileWidth = 60;
+		int keyTileHeight = 55;
+		
+		keyboardTiles = new KeyboardUITile[keyboardButtonCharacters.length][0];
+		for(int r = 0; r < keyboardButtonCharacters.length; r++) {
+			int y = r * keyTileHeight;
+			int rowWidth = 0;
+			
+			// create the tiles and calculate the total width
+			keyboardTiles[r] = new KeyboardUITile[keyboardButtonCharacters[r].length];
+			for(int c = 0; c < keyboardButtonCharacters[r].length; c++) {
+				keyboardTiles[r][c] = new KeyboardUITile(this, keyboardButtonCharacters[r][c], keyboardFont);
+				rowWidth += keyboardTiles[r][c].widthMultiplier(keyTileWidth);
+			}
+			
+			int x = 0;
+			// then iterate through the row and add to the UI
+			for(int c = 0; c < keyboardButtonCharacters[r].length; c++) {
+				KeyboardUITile tile = keyboardTiles[r][c];
+				int xCenterOffset = toInt(panelWidth*0.5 - rowWidth*0.5);
+				tile.setBounds(x + xCenterOffset, y, tile.widthMultiplier(keyTileWidth), keyTileHeight);
+				keyboardPanel.add(tile);
+				x += tile.widthMultiplier(keyTileWidth);
+			}
+		}
+		
+		return keyboardPanel;
 	}
 	
 	// -------------------
@@ -108,9 +158,9 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 		notification.setForeground(getTextColor());
 		
 		// place the text at the center of the screen using the font metrics
-		int width = size.width - SIZE_PADDING*2;
+		int width = size.width - BOARD_HORI_PADDING*2;
 		int textWidth = getFontMetrics(notification.getFont()).stringWidth(text);
-		notification.setBounds(toInt(width * 0.5 - textWidth * 0.5), toInt(size.height * 0.65)-35, textWidth, 100);
+		notification.setBounds(toInt(width * 0.5 - textWidth * 0.5), toInt(size.height * 0.61)-35, textWidth, 100);
 		
 		notification.setText(text);
 	}
@@ -127,7 +177,7 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 			return false;
 		
 		if(activeCol < 0) activeCol = 0;
-		tiles[activeRow][activeCol].setCharacter(letter);
+		gameBoardTiles[activeRow][activeCol].setCharacter(letter);
 		activeCol++;
 		return true;
 	}
@@ -143,7 +193,7 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 			return false;
 
 		activeCol--;
-		tiles[activeRow][activeCol].removeCharacter();
+		gameBoardTiles[activeRow][activeCol].removeCharacter();
 		return true;
 	}
 
@@ -166,6 +216,9 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 			pushNotification("Word doesn't exist!");
 			return false;
 		}
+		
+		setLetterStage(0, 0, 1);
+		setLetterStage(0, 1, 2);
 
 		// there aren't enough rows left
 		if(activeRow+1 >= ATTEMPT_AMOUNT) {
@@ -189,7 +242,16 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 	 * @author Ethan Rees
 	 */
 	public void setLetterStage(int row, int col, int newStage) {
-		tiles[row][col].setStage(newStage);
+		gameBoardTiles[row][col].setStage(newStage);
+		
+		// set the right keyboard letter to the right stage
+		String character = gameBoardTiles[row][col].getCharacter();
+		for(int r = 0; r < keyboardTiles.length; r++) {
+			for(int c = 0; c < keyboardTiles[r].length; c++) {
+				if(keyboardTiles[r][c].getContent().equals(character))
+					keyboardTiles[r][c].setStage(newStage);
+			}
+		}
 	}
 	
 	// -------------------
@@ -201,19 +263,21 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		// handle backspace
 		if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 			removeLetter();
+		// handle enter
 		if(e.getKeyCode() == KeyEvent.VK_ENTER)
 			enterNewRow();
-		else if(Character.isAlphabetic(e.getKeyCode()) && e.getKeyChar() != '' && !e.isActionKey()) {
-				addLetter(e.getKeyChar());
+		// handle every other alphabetical character
+		else if(Character.isAlphabetic(e.getKeyCode())) {
+				addLetter(Character.toUpperCase(e.getKeyChar()));
 			}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {}
 	
-
 	
 	// -------------------
 	//   COLOR MANAGEMENT

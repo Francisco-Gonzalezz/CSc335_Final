@@ -8,7 +8,7 @@ public class Boot {
 
 	public static void main(String[] args) {
 		
-		Dimension size = new Dimension(800, 712);
+		Dimension size = new Dimension(800, 752);
 		JFrame frame = new JFrame();
 		frame.setTitle("Wordle - Csc335");
 		

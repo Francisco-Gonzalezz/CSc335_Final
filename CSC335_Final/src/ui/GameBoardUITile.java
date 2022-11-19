@@ -47,6 +47,9 @@ public class GameBoardUITile extends JPanel {
 		Graphics2D g2 = (Graphics2D)g;
 		int padding = 2;
 		
+		g2.setColor(ui.getBackgroundColor());
+		g2.fillRect(0, 0, getWidth(), getHeight());
+		
 		// draw the background box
 		Color c = getColor().darker().darker().darker();
 		g2.setColor(c);
@@ -79,6 +82,10 @@ public class GameBoardUITile extends JPanel {
 		repaint();
 	}
 	
+	public String getCharacter() {
+		return this.letterToDisplay;
+	}
+	
 	public void removeCharacter() {
 		this.letterToDisplay = null;
 		repaint();
@@ -86,6 +93,7 @@ public class GameBoardUITile extends JPanel {
 	
 	public void setStage(int stage) {
 		this.stage = stage;
+		repaint();
 	}
 	
 	Color getColor() {
