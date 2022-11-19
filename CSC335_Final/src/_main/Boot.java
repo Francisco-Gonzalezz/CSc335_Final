@@ -1,7 +1,9 @@
+package _main;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
+import ui.UIAnimator;
 import ui.WordleGameBoardUI;
 
 public class Boot {
