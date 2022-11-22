@@ -56,6 +56,6 @@ public class Player {
 	}
 	
 	public void switchTheme() {
-		this.lightOrDark = !this.lightOrDark;
+		this.lightOrDark = !this.lightOrDark; 
 	}
 }
