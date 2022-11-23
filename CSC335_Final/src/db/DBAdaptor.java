@@ -104,8 +104,8 @@ public class DBAdaptor {
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
 			// Get values from Player Object
-			if ( !doesUserExist( "wow", statement ) ) {
-				String sql = "INSERT INTO Users VALUES ('wow', 'lame', 'Frankie', 'Gonzalez', 'I am super cool', 1, 0, 0);";
+			if ( !doesUserExist( "new", statement ) ) {
+				String sql = "INSERT INTO Users VALUES ('new', 'lame', 'Frankie', 'Gonzalez', 'I am super cool', 1, 0, 0);";
 				statement.execute( sql );
 			}
 		} catch ( SQLException e ) {
@@ -114,7 +114,7 @@ public class DBAdaptor {
 	}
 
 	/**
-	 * Helper function that checks to make sure user does not exist before registering.
+	 * Helper function that checks to make sure user does not exist before registering. Didn't set this up in SQL
 	 * @param String username
 	 * @param Statement stmt
 	 * @return true if user exists, false otherwise.
