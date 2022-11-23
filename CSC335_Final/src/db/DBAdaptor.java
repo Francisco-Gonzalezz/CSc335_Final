@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import player.Player;
 
 /**
  * @author frankiegonzalez This class is the connection between the Java Program and the remote DB, it is able to
@@ -99,7 +100,7 @@ public class DBAdaptor {
 	}
 
 	// TODO: Need to use Player object
-	public static void registerNewUser() {
+	public static void registerNewUser(Player user) {
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://192.168.1.141:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
