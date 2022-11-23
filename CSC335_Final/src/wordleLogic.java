@@ -61,7 +61,7 @@ class wordleLogic
 			//System.out.println();
 			guess = sc.nextLine().toUpperCase();
 
-			if(checkWord(guess))
+			if(checkWord(guess) && check_for_word(guess))
 			{
 				//loop iterating through each letter of word
 				for(int i = 0; i < 5; i++)
@@ -111,5 +111,25 @@ class wordleLogic
 	{
 		return word.length()>=5 && word.matches("[a-zA-Z]+");
 	}
-
+	
+    public static boolean check_for_word(String word) 
+    {
+        try 
+        {
+            BufferedReader in = new BufferedReader(new FileReader("src/words.txt"));
+            String str;
+            while ((str = in.readLine()) != null) 
+            {
+                if (str.indexOf(word.toLowerCase()) != -1) 
+                {
+                    return true;
+                }
+            }
+            in.close();
+        } catch (IOException e) 
+        {
+        	
+        }
+        return false;
+    }
 }
