@@ -1,8 +1,7 @@
 package player;
+
 /**
- * 
  * @author Brian Vu
- *
  */
 public class Player {
 	private String username;
@@ -16,7 +15,7 @@ public class Player {
 	private int gamesPlayed;
 	private int wins;
 
-	public Player(String username, String password, String firstName, String lastName) {
+	public Player ( String username, String password, String firstName, String lastName ) {
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
@@ -43,20 +42,36 @@ public class Player {
 		return this.lastName;
 	}
 
-	public void setBio(String bio) {
+	public void setBio( String bio ) {
 		this.bio = bio;
 		// max chars?
 	}
 	
-	public int getWinRate() {
-		return (this.wins / this.gamesPlayed);
+	public String getBio() {
+		return bio;
 	}
-	
+
+	public int getWinRate() {
+		return ( this.wins / this.gamesPlayed );
+	}
+
 	public int getGamesPlayed() {
 		return this.gamesPlayed;
 	}
-	
+
 	public void switchTheme() {
-		this.lightOrDark = !this.lightOrDark; 
+		this.lightOrDark = !this.lightOrDark;
+	}
+	
+	public boolean getTheme() {
+		return lightOrDark;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public String getPassword() {
+		return password;
 	}
 }

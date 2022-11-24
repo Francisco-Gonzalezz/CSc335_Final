@@ -6,12 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import player.Player;
 
 /**
  * @author frankiegonzalez This class is the connection between the Java Program and the remote DB, it is able to
- *         interact with the remote MySQL DB by sending over SQL Commands through the internet.
+ *         interact with the remote MySQL DB by sending over SQL Commands through the Internet.
  */
 
 public class DBAdaptor {
@@ -20,10 +23,7 @@ public class DBAdaptor {
 	 * @author frankiegonzalez Example on how to start a connection to the DB
 	 */
 	public static void connectToDataBase() {
-		// 192.168.1.141
-		// jdbc:sqlserver://69.244.24.13:3306;databaseName=wordle
-		// jdbc:mysql://69.244.24.13:3306/wordle
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://192.168.1.141:3306/wordle", "admin",
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 
 		} catch ( SQLException e ) {
@@ -40,7 +40,7 @@ public class DBAdaptor {
 		// TODO: Change to List of Players
 		List<String> users = new ArrayList<>();
 
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://192.168.1.141:3306/wordle", "admin",
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
 			try ( ResultSet result = statement.executeQuery( "SELECT UserName FROM Users;" ) ) {
@@ -57,7 +57,7 @@ public class DBAdaptor {
 
 	public static int getWinsForPlayer( String playerName ) {
 		int playerWins = 0;
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://192.168.1.141:3306/wordle", "admin",
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
 			try ( ResultSet result = statement
@@ -75,8 +75,14 @@ public class DBAdaptor {
 		return playerWins;
 	}
 
+	/**
+	 * Compares the credentials that were given to DB to see if login successful.
+	 * @param String: username
+	 * @param String: password
+	 * @return true if login credentials were correct, false otherwise.
+	 */
 	public static boolean loginToUser( String username, String password ) {
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://192.168.1.141:3306/wordle", "admin",
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
 			// Grab username and password from DB
@@ -99,19 +105,32 @@ public class DBAdaptor {
 		return false;
 	}
 
-	// TODO: Need to use Player object
-	public static void registerNewUser(Player user) {
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://192.168.1.141:3306/wordle", "admin",
+	/**
+	 * Registers a new user into the DB using a Player Object.
+	 * @param String: user
+	 * @return returns true if registering a user was successful, false if it failed.
+	 */
+	public static boolean registerNewUser( Player user ) {
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
 			// Get values from Player Object
-			if ( !doesUserExist( "new", statement ) ) {
-				String sql = "INSERT INTO Users VALUES ('new', 'lame', 'Frankie', 'Gonzalez', 'I am super cool', 1, 0, 0);";
+			if ( !doesUserExist( user.getUsername(), statement ) ) {
+				int theme = user.getTheme() ? 1 : 0;
+				String sql = "INSERT INTO Users ";
+				String values = "VALUES ('" + user.getUsername() + "', '" + user.getPassword() + "', '"
+					+ user.getFirstName() + "', '" + user.getLastName() + "', '" + user.getBio() + "', " + theme
+					+ ", 0, 0);";
+				sql = sql + values;
 				statement.execute( sql );
+				return true;
+			} else {
+				System.out.println( "This user already exists." );
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
 		}
+		return false;
 	}
 
 	/**
@@ -130,6 +149,47 @@ public class DBAdaptor {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	/**
+	 * Updates DB to save the current state of the player.
+	 * @param Player: user
+	 * @return true if update was successful, false if update failed.
+	 */
+	public static boolean updateUser( Player user ) {
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			int theme = user.getTheme() ? 1 : 0;
+			Statement stmt = DBConnection.createStatement();
+			String sql = "UPDATE Users SET FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName()
+				+ "', Bio = '" + user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = "
+				+ user.getGamesPlayed() + ", Wins = " + user.getWins() + " WHERE UserName = '" + user.getUsername()
+				+ "';";
+			stmt.execute( sql );
+			return true;
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static Map<String, Integer> getLeaderBoard() {
+		Map<String, Integer> map = new HashMap<>();
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			Statement stmt = DBConnection.createStatement();
+			String sql = "SELECT UserName, Wins FROM Users ORDER BY Wins DESC;";
+			try ( ResultSet result = stmt.executeQuery( sql ) ) {
+				while ( result.next() ) {
+					String username = result.getString( "UserName" );
+					int wins = result.getInt( "Wins" );
+					System.out.println( username + ": " + wins );
+				}
+			}
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+		return map;
 	}
 
 }
