@@ -79,9 +79,9 @@ public class DBAdaptor {
 	 * Compares the credentials that were given to DB to see if login successful.
 	 * @param String: username
 	 * @param String: password
-	 * @return true if login credentials were correct, false otherwise.
+	 * @return A filled out player object if credentials are correct, null otherwise.
 	 */
-	public static boolean loginToUser( String username, String password ) {
+	public static Player loginToUser( String username, String password ) {
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
@@ -93,7 +93,7 @@ public class DBAdaptor {
 					String retPass = result.getString( "Password" );
 					if ( retUser != null & !retUser.isEmpty() ) {
 						if ( password.equals( retPass ) ) {
-							return true;
+							return getUser( username, statement );
 						}
 					}
 				}
@@ -102,7 +102,7 @@ public class DBAdaptor {
 		} catch ( SQLException e ) {
 			e.printStackTrace();
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class DBAdaptor {
 	 * @param Statement stmt
 	 * @return true if user exists, false otherwise.
 	 */
-	public static boolean doesUserExist( String username, Statement stmt ) {
+	private static boolean doesUserExist( String username, Statement stmt ) {
 		try ( ResultSet result = stmt
 			.executeQuery( "SELECT UserName FROM Users WHERE UserName = '" + username + "';" ) ) {
 			while ( result.next() ) {
@@ -218,13 +218,24 @@ public class DBAdaptor {
 	 * @return Player object containing information stored for that user
 	 * @param String: username..The user you want to create from DB
 	 */
-	public static Player getUser( String username ) {
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
-			"passw0rd" ) ) {
-			Statement stmt = DBConnection.createStatement();
-			String sql = "SELECT * FROM Users WHERE UserName = '" + username + "';";
-			try ( ResultSet result = stmt.executeQuery( sql ) ) {
-
+	private static Player getUser( String username, Statement stmt ) {
+		String sql = "SELECT * FROM Users WHERE UserName = '" + username + "';";
+		try ( ResultSet result = stmt.executeQuery( sql ) ) {
+			while ( result.next() ) {
+				String user = result.getString( "UserName" );
+				String password = result.getString( "Password" );
+				String firstName = result.getString( "FirstName" );
+				String lastName = result.getString( "LastName" );
+				String bio = result.getString( "Bio" );
+				boolean theme = result.getBoolean( "LightOrDark" );
+				int gamesPlayed = result.getInt( "GamesPlayed" );
+				int wins = result.getInt( "Wins" );
+				Player player = new Player( user, password, firstName, lastName );
+				player.setBio( bio );
+				player.setTheme( theme );
+				player.setGamesPlayed( gamesPlayed );
+				player.setWins( wins );
+				return player;
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();

@@ -34,6 +34,10 @@ public class Player {
 		return this.wins;
 	}
 
+	public void setWins( int wins ) {
+		this.wins = wins;
+	}
+
 	public String getFirstName() {
 		return this.firstName;
 	}
@@ -46,7 +50,7 @@ public class Player {
 		this.bio = bio;
 		// max chars?
 	}
-	
+
 	public String getBio() {
 		return bio;
 	}
@@ -59,10 +63,14 @@ public class Player {
 		return this.gamesPlayed;
 	}
 
+	public void setGamesPlayed( int games ) {
+		gamesPlayed = games;
+	}
+
 	public void switchTheme() {
 		this.lightOrDark = !this.lightOrDark;
 	}
-	
+
 	public boolean getTheme() {
 		return lightOrDark;
 	}
@@ -74,8 +82,8 @@ public class Player {
 	public String getPassword() {
 		return password;
 	}
-	
-	public void setTheme(boolean theme) {
+
+	public void setTheme( boolean theme ) {
 		lightOrDark = theme;
 	}
 }
