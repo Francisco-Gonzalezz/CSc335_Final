@@ -74,4 +74,8 @@ public class Player {
 	public String getPassword() {
 		return password;
 	}
+	
+	public void setTheme(boolean theme) {
+		lightOrDark = theme;
+	}
 }

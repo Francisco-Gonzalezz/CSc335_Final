@@ -173,6 +173,10 @@ public class DBAdaptor {
 		return false;
 	}
 
+	/**
+	 * Grabs a map of users to their current total of wins.
+	 * @return Returns a HashMap that connects a username to total wins
+	 */
 	public static Map<String, Integer> getLeaderBoard() {
 		Map<String, Integer> map = new HashMap<>();
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
@@ -190,6 +194,42 @@ public class DBAdaptor {
 			e.printStackTrace();
 		}
 		return map;
+	}
+
+	/**
+	 * Sends SQL Command to delete the user passed in the parameter user.
+	 * @param Player: user
+	 * @return true if deletion is successful and false otherwise.
+	 */
+	public static boolean deleteUser( Player user ) {
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			Statement stmt = DBConnection.createStatement();
+			String sql = "DELETE FROM Users WHERE UserName = '" + user.getUsername() + "';";
+			stmt.execute( sql );
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
+	 * Creates a new player object with information stored from DB. Returns null if user doesn't exist.
+	 * @return Player object containing information stored for that user
+	 * @param String: username..The user you want to create from DB
+	 */
+	public static Player getUser( String username ) {
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			Statement stmt = DBConnection.createStatement();
+			String sql = "SELECT * FROM Users WHERE UserName = '" + username + "';";
+			try ( ResultSet result = stmt.executeQuery( sql ) ) {
+
+			}
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
