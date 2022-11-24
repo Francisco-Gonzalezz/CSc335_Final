@@ -3,23 +3,13 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
+import ui.SceneManager;
 import ui.UIAnimator;
-import ui.WordleGameBoardUI;
+import ui.titleScreen.TitleScreenUI;
+import ui.wordleGameBoard.WordleGameBoardUI;
 
 public class Boot {
-
 	public static void main(String[] args) {
-		
-		Dimension size = new Dimension(800, 752);
-		JFrame frame = new JFrame();
-		frame.setTitle("Wordle - Csc335");
-		
-		frame.add(new WordleGameBoardUI(size));
-		
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setPreferredSize(size);
-		frame.setResizable(false);
-		frame.pack();
+		SceneManager.setScene(new TitleScreenUI());
 	}
 }

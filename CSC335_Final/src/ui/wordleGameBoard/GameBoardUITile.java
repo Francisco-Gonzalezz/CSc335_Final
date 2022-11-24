@@ -2,7 +2,7 @@
  * This is one of the letter panels on the UI, it holds the letter and handles drawing
  * @author Ethan Rees
  */
-package ui;
+package ui.wordleGameBoard;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -15,9 +15,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import _main.KeyStage;
+import ui.Scene;
+import ui.UIAnimationReciever;
+import ui.UIAnimator;
 
 public class GameBoardUITile extends JPanel implements UIAnimationReciever {
-	WordleGameBoardUI ui;
+	Scene ui;
 	Font font;
 	
 	String letterToDisplay;
@@ -32,7 +35,9 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 	double animationShakeInfluence, animationShakeOffset;
 	double animationFadeIn;
 	
-	public GameBoardUITile(WordleGameBoardUI ui, Font font) {
+	int characterOffset;
+	
+	public GameBoardUITile(Scene ui, Font font) {
 		this.ui = ui;
 		this.font = font;
 		this.letterToDisplay = null;
@@ -42,6 +47,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 		this.animationShakeInfluence = 0;
 		this.animationShakeOffset = 0;
 		this.animationFadeIn = 0;
+		this.characterOffset = 55;
 	}
 	
 	/**
@@ -64,9 +70,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 		g2.fillRect(0, 0, getWidth(), getHeight());
 		
 		// draw the background box
-		Color c = getMainColor().darker().darker().darker();
-		//c = tempUpdate % 2 == 0 ? Color.red : Color.black;
-		g2.setColor(c);
+		g2.setColor(ui.contrastColor(getMainColor(), 3));
 		g2.fillRoundRect(padding+ui.toInt(animationShakeOffset), padding, getWidth() - padding*2, getHeight() - padding*2, 3, 3);
 		
 		// draw the outline
@@ -92,7 +96,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 			
 			// box width / 2 - letter width / 2
 			int xOffset = ui.toInt(getWidth()*.5 - width*0.5)+ui.toInt(animationShakeOffset);
-			g2.drawString(letterToDisplay, xOffset, 55);
+			g2.drawString(letterToDisplay, xOffset, characterOffset);
 		}
 	}
 	
@@ -148,6 +152,15 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 	}
 	
 	/**
+	 * Change the letter offset
+	 *
+	 * @author Ethan Rees 
+	 */
+	public void setHeightOffset(int offset) {
+		this.characterOffset = offset;
+	}
+	
+	/**
 	 * This will return the main color
 	 *
 	 * @author Ethan Rees 
@@ -161,6 +174,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 
 		if(letterToDisplay == null)
 			return ui.getHylightColor().darker();
+		
 		return ui.getHylightColor();
 	}
 	

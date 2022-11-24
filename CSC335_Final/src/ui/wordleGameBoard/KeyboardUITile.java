@@ -2,7 +2,7 @@
  * This class holds the panel for a keyboard tile, it holds the letter and handles mouse events
  * @author Ethan Rees
  */
-package ui;
+package ui.wordleGameBoard;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -73,15 +73,15 @@ public class KeyboardUITile extends JPanel implements MouseListener {
 	Color getBackgroundColor() {
 		Color color = ui.getHylightColor();
 		if(stage == KeyStage.NotInWord)
-			return color.darker();
+			return ui.contrastColor(color, 1);
 		if(stage == KeyStage.InWordWrongPlace)
 			color =  ui.getWrongPlaceColor();
 		if(stage == KeyStage.InWordRightPlace)
 			color = ui.getRightPlaceColor();
 
-		color =	color.darker();
-		if(this.isHovering) color = color.brighter();
-		if(this.isClicked) color = color.brighter();
+		color = ui.contrastColor(color, 1);
+		if(this.isHovering) color = ui.contrastColor(color, 1);
+		if(this.isClicked) color = ui.contrastColor(color, 1);
 		
 		return color;
 	}

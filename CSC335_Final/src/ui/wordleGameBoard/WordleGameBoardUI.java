@@ -3,7 +3,7 @@
  * This class creates the game board for the wordle game, it holds the different
  * keys and handles basic ui interaction
  */
-package ui;
+package ui.wordleGameBoard;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,8 +15,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import _main.KeyStage;
+import ui.*;
 
-public class WordleGameBoardUI extends JPanel implements KeyListener {
+public class WordleGameBoardUI extends Scene implements KeyListener {
 	
 	// some settings
 	public static final int WORD_SIZE = 5, ATTEMPT_AMOUNT = 6;
@@ -306,6 +307,17 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 	// -------------------
 	//      EVENTS
 	// -------------------
+
+	@Override
+	public void onThemeChange(boolean isDarkMode) {
+		setBackground(getBackgroundColor());
+		displayPanel.setBackground(getBackground());
+		displayPanel.repaint();
+		keyboardPanel.setBackground(getBackground());
+		keyboardPanel.repaint();
+		updateActiveRowIndicator();
+		activeRowIndicator.repaint();
+	}
 	
 	/**
 	 * A key has been pressed!
@@ -334,61 +346,9 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 
 	
 	// -------------------
-	//   COLOR MANAGEMENT
-	// -------------------
-	
-	/**
-	 * This is the border color of the tiles
-	 * @author Ethan Rees
-	 */
-	public Color getHylightColor() {
-		return new Color(80, 80, 80);
-	}
-
-	/**
-	 * This is the background color of the page
-	 * @author Ethan Rees
-	 */
-	public Color getBackgroundColor() {
-		return new Color(15, 15, 15);
-	}
-
-	/**
-	 * This is the color for stage 1, wrong place but right letter
-	 * @author Ethan Rees
-	 */
-	public Color getWrongPlaceColor() {
-		return new Color(255, 224, 83);
-	}
-
-	/**
-	 * This is the color for stage 2, right place and right letter
-	 * @author Ethan Rees
-	 */
-	public Color getRightPlaceColor() {
-		return new Color(141, 255, 146);
-	}
-
-	/**
-	 * This is the border color for text
-	 * @author Ethan Rees
-	 */
-	public Color getTextColor() {
-		return new Color(255, 255, 255, 200);
-	}
-
-	// -------------------
 	//        UTIL
 	// -------------------
 
-	/**
-	 * This just rounds a double to an int, used for screen proportions
-	 * @author Ethan Rees
-	 */
-	int toInt(double x) {
-		return (int)Math.round(x);
-	}
-	
 	/**
 	 * This will update row indicator's position
 	 *
@@ -401,4 +361,5 @@ public class WordleGameBoardUI extends JPanel implements KeyListener {
 		activeRowIndicator.setBackground(UIAnimator.lerpColor(getHylightColor(), getBackgroundColor(), 0.7));
 		activeRowIndicator.setBounds(160, 30+activeRow * cellHeight+BOARD_CELL_PADDING*2, 5, cellHeight-BOARD_CELL_PADDING*4);
 	}
+
 }
