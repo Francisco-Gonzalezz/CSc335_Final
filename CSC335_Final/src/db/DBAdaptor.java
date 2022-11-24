@@ -106,6 +106,36 @@ public class DBAdaptor {
 	}
 
 	/**
+	 * Creates a new player object with information stored from DB. Returns null if user doesn't exist.
+	 * @return Player object containing information stored for that user
+	 * @param String: username..The user you want to create from DB
+	 */
+	private static Player getUser( String username, Statement stmt ) {
+		String sql = "SELECT * FROM Users WHERE UserName = '" + username + "';";
+		try ( ResultSet result = stmt.executeQuery( sql ) ) {
+			while ( result.next() ) {
+				String user = result.getString( "UserName" );
+				String password = result.getString( "Password" );
+				String firstName = result.getString( "FirstName" );
+				String lastName = result.getString( "LastName" );
+				String bio = result.getString( "Bio" );
+				boolean theme = result.getBoolean( "LightOrDark" );
+				int gamesPlayed = result.getInt( "GamesPlayed" );
+				int wins = result.getInt( "Wins" );
+				Player player = new Player( user, password, firstName, lastName );
+				player.setBio( bio );
+				player.setTheme( theme );
+				player.setGamesPlayed( gamesPlayed );
+				player.setWins( wins );
+				return player;
+			}
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
 	 * Registers a new user into the DB using a Player Object.
 	 * @param String: user
 	 * @return returns true if registering a user was successful, false if it failed.
@@ -173,12 +203,8 @@ public class DBAdaptor {
 		return false;
 	}
 
-	/**
-	 * Grabs a map of users to their current total of wins.
-	 * @return Returns a HashMap that connects a username to total wins
-	 */
-	public static Map<String, Integer> getLeaderBoard() {
-		Map<String, Integer> map = new HashMap<>();
+	public static List<String> getLeaderBoard() {
+		List<String> list = new ArrayList<>();
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement stmt = DBConnection.createStatement();
@@ -187,13 +213,13 @@ public class DBAdaptor {
 				while ( result.next() ) {
 					String username = result.getString( "UserName" );
 					int wins = result.getInt( "Wins" );
-					System.out.println( username + ": " + wins );
+					list.add( username + "," + wins );
 				}
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
 		}
-		return map;
+		return list;
 	}
 
 	/**
@@ -211,36 +237,6 @@ public class DBAdaptor {
 			e.printStackTrace();
 		}
 		return false;
-	}
-
-	/**
-	 * Creates a new player object with information stored from DB. Returns null if user doesn't exist.
-	 * @return Player object containing information stored for that user
-	 * @param String: username..The user you want to create from DB
-	 */
-	private static Player getUser( String username, Statement stmt ) {
-		String sql = "SELECT * FROM Users WHERE UserName = '" + username + "';";
-		try ( ResultSet result = stmt.executeQuery( sql ) ) {
-			while ( result.next() ) {
-				String user = result.getString( "UserName" );
-				String password = result.getString( "Password" );
-				String firstName = result.getString( "FirstName" );
-				String lastName = result.getString( "LastName" );
-				String bio = result.getString( "Bio" );
-				boolean theme = result.getBoolean( "LightOrDark" );
-				int gamesPlayed = result.getInt( "GamesPlayed" );
-				int wins = result.getInt( "Wins" );
-				Player player = new Player( user, password, firstName, lastName );
-				player.setBio( bio );
-				player.setTheme( theme );
-				player.setGamesPlayed( gamesPlayed );
-				player.setWins( wins );
-				return player;
-			}
-		} catch ( SQLException e ) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 }
