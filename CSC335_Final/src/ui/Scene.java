@@ -1,18 +1,54 @@
 package ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import ui.titleScreen.TitleScreenUI;
+
 public abstract class Scene extends JPanel {
-	protected boolean isDarkMode;
-	public abstract void onThemeChange(boolean isDarkMode);
 	
+	protected boolean isDarkMode;
+	protected JButton exitButton;
+	
+	/**
+	 * This method will enter and exit dark mode, this shouldn't ever be called unless
+	 * its called from SceneManager!
+	 *
+	 * @author Ethan Rees 
+	 * @param isDarkMode
+	 */
 	public void setIsDarkMode(boolean isDarkMode) {
 		this.isDarkMode = isDarkMode;
 		onThemeChange(isDarkMode);
+		if(exitButton != null) {
+			exitButton.setBackground((contrastColor(getHylightColor(), 4)));
+			exitButton.setForeground(contrastColor(getTextColor(), 1));
+			exitButton.setBorder(BorderFactory.createLineBorder(contrastColor(getHylightColor(), 2), 1));
+		}
 		repaint();
 	}
+	
+	/**
+	 * This button will create an exit button on the top left size of the screen!
+	 * Color management is automatically handled!
+	 *
+	 * @author Ethan Rees
+	 */
+	public void createExitButton() {
+		exitButton = new JButton("< exit");
+		exitButton.setBounds(5, 5, 60, 40);
+		exitButton.addActionListener(l -> {
+			SceneManager.setScene(new TitleScreenUI());
+		});
+		add(exitButton);
+	}
+	
+	public abstract void onThemeChange(boolean isDarkMode);
+	
 
 	// -------------------
 	//   COLOR MANAGEMENT
@@ -90,6 +126,16 @@ public abstract class Scene extends JPanel {
 	 */
 	public int toInt(double x) {
 		return (int)Math.round(x);
+	}
+
+	/**
+	 * This helper class will calculate the X position for a item with a width to be centered
+	 *
+	 * @author Ethan Rees 
+	 * @return
+	 */
+	protected int centeredWidthXOffset(Dimension size, int width) {
+		return (int)(size.width * 0.5 - width*0.5);
 	}
 
 }

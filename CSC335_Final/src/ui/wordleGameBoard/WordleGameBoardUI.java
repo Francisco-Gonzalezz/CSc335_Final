@@ -60,6 +60,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		// setup the displayPanel
 		add(setupDisplayPanel());
 		add(setupKeyboardPanel());
+		createExitButton();
 	}
 	
 	/**

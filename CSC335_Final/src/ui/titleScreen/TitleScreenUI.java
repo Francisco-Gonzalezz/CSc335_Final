@@ -1,6 +1,12 @@
+/**
+ * This class creates and holds a title screen UI
+ * 
+ * @author Ethan Rees
+ */
 package ui.titleScreen;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.BorderFactory;
@@ -11,20 +17,22 @@ import javax.swing.JPanel;
 import _main.KeyStage;
 import ui.Scene;
 import ui.SceneManager;
+import ui.help.HelpPageUI;
+import ui.leaderboard.LeaderboardUI;
 import ui.wordleGameBoard.GameBoardUITile;
 import ui.wordleGameBoard.WordleGameBoardUI;
 
 public class TitleScreenUI extends Scene {
 	
 	String[] titleButtons = {
-			"Play",
+			"Play As Guest",
 			"Leaderboard",
 			"Help"
 	};
 	Scene[] titleButtonsScenes = {
 			new WordleGameBoardUI(SceneManager.size),
-			null,
-			null
+			new LeaderboardUI(SceneManager.size),
+			new HelpPageUI(SceneManager.size)
 	};
 	
 	JButton[] titleJButtons;
@@ -34,6 +42,9 @@ public class TitleScreenUI extends Scene {
 	
 	JLabel subtitle;
 	JLabel darkModeToggleLabel;
+	
+	ProfileChooser chooser;
+	boolean error;
 	
 	public TitleScreenUI() {
 		
@@ -58,12 +69,12 @@ public class TitleScreenUI extends Scene {
 		constructLogo();
 
 		// create the subtitles
-		subtitle = new JLabel("Aditya Gupta, Frankie Jackson, Ethan Rees, Brian Vu");
+		subtitle = new JLabel("Frankie Gonzalez, Aditya Gupta, Ethan Rees, Brian Vu");
 		int subtitleWidth = getFontMetrics(subtitle.getFont()).stringWidth(subtitle.getText())+2;
 		subtitle.setBounds((int)(SceneManager.size.width*0.5 - subtitleWidth*0.5),SceneManager.size.height - 105,subtitleWidth,100);
 		add(subtitle);
 		
-		int size = 50;
+		int size = 35;
 		IconToggle toggle = new IconToggle("toDarkLogo.png", "toLightLogo.png", isDarkMode, size, size);
 		toggle.setBounds(10, 10, size, size);
 		toggle.addActionListener(l -> {
@@ -71,9 +82,14 @@ public class TitleScreenUI extends Scene {
 		});
 		
 		darkModeToggleLabel = new JLabel("Switch");
-		darkModeToggleLabel.setBounds(15, 10 + size, size, 20);
+		darkModeToggleLabel.setBounds(8, 10 + size, size+10, 20);
 		add(darkModeToggleLabel);
 		add(toggle);
+		
+		Dimension profileChooserSize = new Dimension(200, 170);
+		chooser = new ProfileChooser(this, profileChooserSize);
+		chooser.setBounds(SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
+		add(chooser);
 	}
 	
 	/**
@@ -83,6 +99,7 @@ public class TitleScreenUI extends Scene {
 	 */
 	void constructLogo() {
 		titleTileHolder = new JPanel();
+		titleTileHolder.setOpaque(false);
 		titleTileHolder.setLayout(null);
 		
 		// position the frame
@@ -91,7 +108,7 @@ public class TitleScreenUI extends Scene {
 		int y = 60;
 		int tileSize = 100;
 		int padding = 5;
-		titleTileHolder.setBounds((int)(SceneManager.size.width*0.5 - width*0.5), 50, 500, 300);
+		titleTileHolder.setBounds((int)(SceneManager.size.width*0.5 - width*0.5), 70, 500, 300);
 		
 		// create the text
 		Font font = new Font("Arial", Font.BOLD, 75);
@@ -116,20 +133,63 @@ public class TitleScreenUI extends Scene {
 		add(titleTileHolder);
 	}
 	
+	/**
+	 * This is called once the profile chooser has requested a login
+	 *
+	 * @author Ethan Rees 
+	 * @param username given username
+	 * @param password given password
+	 */
+	public void loggedInRequest(String username, String password) {
+		titleJButtons[0].setText("Play as " + username);
+		chooser.setPopupOpen(false);
+		chooser.setLoggedIn(true);
+	}
+	
+	/**
+	 * This is called once the profile chooser has requested a logout
+	 *
+	 * @author Ethan Rees
+	 */
+	public void logOutRequest() {
+		titleJButtons[0].setText("Play as Guest");
+		chooser.setLoggedIn(false);
+	}
+	
+	/**
+	 * This is called on an error message, it just replaces the credits with
+	 * the error
+	 *
+	 * @author Ethan Rees 
+	 * @param error
+	 */
+	public void onError(Exception error) {
+		subtitle.setText(error.toString());
+		this.error = true;
+		subtitle.setForeground(Color.red);
+	}
+	
 	@Override
 	public void onThemeChange(boolean isDarkMode) {
 		setBackground(getBackgroundColor());
 		
+		// update the main buttons
 		for(int i = 0; i < titleJButtons.length; i++) {
 			JButton button = titleJButtons[i];
 			button.setBackground(contrastColor(getHylightColor().darker(), 3));
 			button.setForeground(getTextColor());
 			button.setBorder(BorderFactory.createLineBorder(getHylightColor(), 1));
 		}
-
-		titleTileHolder.setBackground(getBackgroundColor());
+		
+		// update the subtitle
 		Color textColor = new Color(getTextColor().getRed(), getTextColor().getGreen(), getTextColor().getBlue(), 100);
-		subtitle.setForeground(textColor);
+		subtitle.setForeground(error ? Color.red : textColor);
+		
+		// dark mode toggle
 		darkModeToggleLabel.setForeground(textColor);
+		
+		// profile chooser
+		chooser.onThemeChanged();
 	}
+
 }
