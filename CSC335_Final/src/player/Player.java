@@ -11,7 +11,6 @@ public class Player {
 	private String bio;
 	private String truncatedBio;
 	private boolean lightOrDark;
-
 	private int gamesPlayed;
 	private int wins;
 
@@ -20,10 +19,10 @@ public class Player {
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		gamesPlayed = 0;
-		wins = 0;
-		bio = "";
-		truncatedBio = "";
+		this.gamesPlayed = 0;
+		this.wins = 0;
+		this.bio = "";
+		this.truncatedBio = "";
 		this.lightOrDark = true; // true = white, false dark
 	}
 
@@ -58,11 +57,11 @@ public class Player {
 	}
 
 	public String getBio() {
-		return bio;
+		return this.bio;
 	}
 
 	public String getTruncatedBio() {
-		return truncatedBio;
+		return this.truncatedBio;
 	}
 
 	public int getWinRate() {
@@ -74,7 +73,7 @@ public class Player {
 	}
 
 	public void setGamesPlayed(int games) {
-		gamesPlayed = games;
+		this.gamesPlayed = games;
 	}
 
 	public void switchTheme() {
@@ -82,18 +81,18 @@ public class Player {
 	}
 
 	public boolean getTheme() {
-		return lightOrDark;
+		return this.lightOrDark;
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public void setTheme(boolean theme) {
-		lightOrDark = theme;
+		this.lightOrDark = theme;
 	}
 }
