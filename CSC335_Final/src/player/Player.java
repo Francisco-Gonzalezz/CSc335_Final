@@ -14,16 +14,24 @@ public class Player {
 	private int gamesPlayed;
 	private int wins;
 
-	public Player(String username, String password, String firstName, String lastName) {
+	public Player(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.firstName = firstName;
-		this.lastName = lastName;
 		this.gamesPlayed = 0;
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
 		this.lightOrDark = true; // true = white, false dark
+		this.firstName = "";
+		this.lastName = "";
+	}
+	
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	public void addWin() {
