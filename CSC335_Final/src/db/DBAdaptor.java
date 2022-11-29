@@ -82,9 +82,6 @@ public class DBAdaptor {
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
-			if ( !doesUserExist( username, statement ) ) {
-				registerNewUser( new Player( username, password ) );
-			}
 			String sql = "SELECT UserName, Password FROM Users WHERE userName = '" + username + "';";
 			// Grab username and password from DB
 			try ( ResultSet result = statement.executeQuery( sql ) ) {
