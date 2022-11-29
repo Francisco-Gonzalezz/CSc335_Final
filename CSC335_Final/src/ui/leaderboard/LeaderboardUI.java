@@ -8,6 +8,7 @@ package ui.leaderboard;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -16,7 +17,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
+import db.DBAdaptor;
 import ui.Scene;
+import ui.SceneManager;
+import ui.titleScreen.TitleScreenUI;
 
 public class LeaderboardUI extends Scene {
 	
@@ -73,10 +77,9 @@ public class LeaderboardUI extends Scene {
 		Thread waitThread = new Thread(() -> {
 			// get the leaderboard data
 			try {
-				if(true)
-				throw new Exception("No Server Connected!");
+				List<String> leaderboard = DBAdaptor.getLeaderBoard();
 				
-				setLeaderboardData(new ArrayList<String>());
+				setLeaderboardData(leaderboard);
 			} catch (Exception error) {
 
 				ArrayList<String> temp = new ArrayList<String>();
@@ -94,11 +97,16 @@ public class LeaderboardUI extends Scene {
 	 * @author Ethan Rees 
 	 * @param leaderboardList new data
 	 */
-	void setLeaderboardData(ArrayList<String> leaderboardList) {
+	void setLeaderboardData(List<String> list) {
 		leaderboardModel.removeAllElements();
 		refreshButton.setText("Refresh List");
-		for(String s : leaderboardList)
-			leaderboardModel.addElement(s);
+		for(int i = 0; i < list.size(); i++) {
+			String[] splitdata = list.get(i).split(",");
+			leaderboardModel.addElement((i+1) + ") " + splitdata[0] + "   -   " + splitdata[1]);
+			if(TitleScreenUI.loggedInPlayer != null && TitleScreenUI.loggedInPlayer.getUsername().equals(splitdata[0])) {
+				leaderboardList.setSelectedIndex(i);
+			}
+		}
 	}
 	
 	@Override

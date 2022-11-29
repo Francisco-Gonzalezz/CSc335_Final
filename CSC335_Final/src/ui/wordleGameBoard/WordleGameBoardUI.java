@@ -10,12 +10,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Scanner;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import _main.KeyStage;
+import _main.*;
 import ui.*;
+
 
 public class WordleGameBoardUI extends Scene implements KeyListener {
 	
@@ -210,6 +212,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		if(activeCol < 0) activeCol = 0;
 		gameBoardTiles[activeRow][activeCol].setCharacter(letter + "");
 		activeCol++;
+		
 		return true;
 	}
 	
@@ -222,7 +225,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		// if the row is empty
 		if(activeCol <= 0)
 			return false;
-
+		
 		activeCol--;
 		gameBoardTiles[activeRow][activeCol].removeCharacter();
 		return true;
@@ -249,6 +252,13 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		
 		// This is where the UI will run the game logic and stuff, then return here
 		// if a new line is valid
+		String currentRow = "";
+		for(int i = 0; i < WORD_SIZE; i++)
+			currentRow += gameBoardTiles[activeRow][i].getCharacter();
+		
+		// TODO check word stored in currentRow
+		System.out.println(currentRow);
+		
 		boolean temp = false;
 		if(temp) {
 			pushNotification("Word doesn't exist!");

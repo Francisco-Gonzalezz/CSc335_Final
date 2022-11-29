@@ -4,6 +4,9 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 
+import db.DBAdaptor;
+import ui.titleScreen.TitleScreenUI;
+
 public class SceneManager {
 	
 	public static boolean isDarkMode;
@@ -37,5 +40,10 @@ public class SceneManager {
 	public static void setDarkMode(boolean darkMode) {
 		isDarkMode = darkMode;
 		if(activeScene != null) activeScene.setIsDarkMode(darkMode);
+		
+		if(TitleScreenUI.loggedInPlayer != null) {
+			TitleScreenUI.loggedInPlayer.setTheme(!darkMode);
+			DBAdaptor.updateUser(TitleScreenUI.loggedInPlayer);
+		}
 	}
 }

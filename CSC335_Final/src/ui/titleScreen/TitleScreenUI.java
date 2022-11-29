@@ -15,6 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import _main.KeyStage;
+import db.DBAdaptor;
+import player.Player;
 import ui.Scene;
 import ui.SceneManager;
 import ui.help.HelpPageUI;
@@ -45,6 +47,8 @@ public class TitleScreenUI extends Scene {
 	
 	ProfileChooser chooser;
 	boolean error;
+	
+	public static Player loggedInPlayer;
 	
 	public TitleScreenUI() {
 		
@@ -90,6 +94,12 @@ public class TitleScreenUI extends Scene {
 		chooser = new ProfileChooser(this, profileChooserSize);
 		chooser.setBounds(SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
 		add(chooser);
+		
+		updatePlayButtonName();
+		if(loggedInPlayer != null) {
+			chooser.setLoggedIn(true);
+			SceneManager.setDarkMode(!loggedInPlayer.getTheme());
+		}
 	}
 	
 	/**
@@ -141,9 +151,32 @@ public class TitleScreenUI extends Scene {
 	 * @param password given password
 	 */
 	public void loggedInRequest(String username, String password) {
-		titleJButtons[0].setText("Play as " + username);
+		
+		loggedInPlayer = DBAdaptor.loginToUser(username, password);
+		if(loggedInPlayer == null) {
+			DBAdaptor.registerNewUser(new Player(username, password, "", ""));
+			loggedInPlayer = DBAdaptor.loginToUser(username, password);
+		
+			if(loggedInPlayer == null) {
+				onError(new Exception("Failed to login!"));
+				chooser.setLoggedIn(false);
+				chooser.setPopupOpen(true);
+				return;
+			}
+		}
+		
+		updatePlayButtonName();
 		chooser.setPopupOpen(false);
 		chooser.setLoggedIn(true);
+		SceneManager.setDarkMode(!loggedInPlayer.getTheme());
+		subtitle.setText("Frankie Gonzalez, Aditya Gupta, Ethan Rees, Brian Vu");
+	}
+	
+	void updatePlayButtonName() {
+		if(loggedInPlayer == null)
+			titleJButtons[0].setText("Play as Guest");
+		else
+			titleJButtons[0].setText("Play as " + loggedInPlayer.getUsername());
 	}
 	
 	/**
@@ -152,6 +185,7 @@ public class TitleScreenUI extends Scene {
 	 * @author Ethan Rees
 	 */
 	public void logOutRequest() {
+		
 		titleJButtons[0].setText("Play as Guest");
 		chooser.setLoggedIn(false);
 	}
@@ -164,7 +198,7 @@ public class TitleScreenUI extends Scene {
 	 * @param error
 	 */
 	public void onError(Exception error) {
-		subtitle.setText(error.toString());
+		subtitle.setText(error.getLocalizedMessage());
 		this.error = true;
 		subtitle.setForeground(Color.red);
 	}
