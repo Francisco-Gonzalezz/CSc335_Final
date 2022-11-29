@@ -50,8 +50,11 @@ public class Player {
 	public void setBio(String bio) {
 		if (bio.length() > 1000) {
 			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
+			this.bio = bio;
+		} else {
+			this.truncatedBio = bio;
+			this.bio = bio;
 		}
-		this.bio = bio;
 	}
 
 	public String getBio() {
