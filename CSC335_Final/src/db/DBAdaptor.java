@@ -6,9 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import player.Player;
 
@@ -39,7 +37,6 @@ public class DBAdaptor {
 	public static List<String> getAllUsers() {
 		// TODO: Change to List of Players
 		List<String> users = new ArrayList<>();
-
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
@@ -85,9 +82,9 @@ public class DBAdaptor {
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
+			String sql = "SELECT UserName, Password FROM Users WHERE userName = '" + username + "';";
 			// Grab username and password from DB
-			try ( ResultSet result = statement
-				.executeQuery( "SELECT UserName, Password FROM Users WHERE userName = '" + username + "';" ) ) {
+			try ( ResultSet result = statement.executeQuery( sql ) ) {
 				while ( result.next() ) {
 					String retUser = result.getString( "UserName" );
 					String retPass = result.getString( "Password" );
@@ -191,6 +188,9 @@ public class DBAdaptor {
 			"passw0rd" ) ) {
 			int theme = user.getTheme() ? 1 : 0;
 			Statement stmt = DBConnection.createStatement();
+			if ( !doesUserExist( user.getUsername(), stmt ) ) {
+				return false;
+			}
 			String sql = "UPDATE Users SET FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName()
 				+ "', Bio = '" + user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = "
 				+ user.getGamesPlayed() + ", Wins = " + user.getWins() + " WHERE UserName = '" + user.getUsername()
