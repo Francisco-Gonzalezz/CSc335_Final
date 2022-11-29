@@ -8,14 +8,14 @@ public class Player {
 	private String password;
 	private String firstName;
 	private String lastName;
-	// profile pic?
 	private String bio;
+	private String truncatedBio;
 	private boolean lightOrDark;
 
 	private int gamesPlayed;
 	private int wins;
 
-	public Player ( String username, String password, String firstName, String lastName ) {
+	public Player(String username, String password, String firstName, String lastName) {
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
@@ -23,6 +23,7 @@ public class Player {
 		gamesPlayed = 0;
 		wins = 0;
 		bio = "";
+		truncatedBio = "";
 		this.lightOrDark = true; // true = white, false dark
 	}
 
@@ -34,7 +35,7 @@ public class Player {
 		return this.wins;
 	}
 
-	public void setWins( int wins ) {
+	public void setWins(int wins) {
 		this.wins = wins;
 	}
 
@@ -46,24 +47,30 @@ public class Player {
 		return this.lastName;
 	}
 
-	public void setBio( String bio ) {
+	public void setBio(String bio) {
+		if (bio.length() > 1000) {
+			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
+		}
 		this.bio = bio;
-		// max chars?
 	}
 
 	public String getBio() {
 		return bio;
 	}
 
+	public String getTruncatedBio() {
+		return truncatedBio;
+	}
+
 	public int getWinRate() {
-		return ( this.wins / this.gamesPlayed );
+		return (this.wins / this.gamesPlayed);
 	}
 
 	public int getGamesPlayed() {
 		return this.gamesPlayed;
 	}
 
-	public void setGamesPlayed( int games ) {
+	public void setGamesPlayed(int games) {
 		gamesPlayed = games;
 	}
 
@@ -83,7 +90,7 @@ public class Player {
 		return password;
 	}
 
-	public void setTheme( boolean theme ) {
+	public void setTheme(boolean theme) {
 		lightOrDark = theme;
 	}
 }
