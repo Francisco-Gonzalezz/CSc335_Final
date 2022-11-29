@@ -1,18 +1,16 @@
 package player;
+
 /**
- * 
  * @author Brian Vu
- *
  */
 public class Player {
 	private String username;
 	private String password;
 	private String firstName;
 	private String lastName;
-	// profile pic?
 	private String bio;
+	private String truncatedBio;
 	private boolean lightOrDark;
-
 	private int gamesPlayed;
 	private int wins;
 
@@ -21,9 +19,10 @@ public class Player {
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		gamesPlayed = 0;
-		wins = 0;
-		bio = "";
+		this.gamesPlayed = 0;
+		this.wins = 0;
+		this.bio = "";
+		this.truncatedBio = "";
 		this.lightOrDark = true; // true = white, false dark
 	}
 
@@ -35,6 +34,10 @@ public class Player {
 		return this.wins;
 	}
 
+	public void setWins(int wins) {
+		this.wins = wins;
+	}
+
 	public String getFirstName() {
 		return this.firstName;
 	}
@@ -44,19 +47,52 @@ public class Player {
 	}
 
 	public void setBio(String bio) {
-		this.bio = bio;
-		// max chars?
+		if (bio.length() > 1000) {
+			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
+			this.bio = bio;
+		} else {
+			this.truncatedBio = bio;
+			this.bio = bio;
+		}
 	}
-	
+
+	public String getBio() {
+		return this.bio;
+	}
+
+	public String getTruncatedBio() {
+		return this.truncatedBio;
+	}
+
 	public int getWinRate() {
 		return (this.wins / this.gamesPlayed);
 	}
-	
+
 	public int getGamesPlayed() {
 		return this.gamesPlayed;
 	}
-	
+
+	public void setGamesPlayed(int games) {
+		this.gamesPlayed = games;
+	}
+
 	public void switchTheme() {
-		this.lightOrDark = !this.lightOrDark; 
+		this.lightOrDark = !this.lightOrDark;
+	}
+
+	public boolean getTheme() {
+		return this.lightOrDark;
+	}
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public String getPassword() {
+		return this.password;
+	}
+
+	public void setTheme(boolean theme) {
+		this.lightOrDark = theme;
 	}
 }
