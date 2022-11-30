@@ -23,7 +23,7 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = true; // true = white, false dark
+		this.lightOrDark = false; // true = white, false dark
 	}
 
 	public void addWin() {
@@ -88,6 +88,10 @@ public class Player {
 		return this.username;
 	}
 
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getPassword() {
 		return this.password;
 	}
@@ -95,4 +99,17 @@ public class Player {
 	public void setTheme(boolean theme) {
 		this.lightOrDark = theme;
 	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	
 }

@@ -46,6 +46,7 @@ public class TitleScreenUI extends Scene {
 	JLabel darkModeToggleLabel;
 	
 	ProfileChooser chooser;
+	IconToggle iconToggle;
 	boolean error;
 	
 	public static Player loggedInPlayer;
@@ -79,18 +80,18 @@ public class TitleScreenUI extends Scene {
 		add(subtitle);
 		
 		int size = 35;
-		IconToggle toggle = new IconToggle("toDarkLogo.png", "toLightLogo.png", isDarkMode, size, size);
-		toggle.setBounds(10, 10, size, size);
-		toggle.addActionListener(l -> {
-			SceneManager.setDarkMode(toggle.value);
+		iconToggle = new IconToggle("toLightLogo.png", "toDarkLogo.png", isDarkMode, size, size);
+		iconToggle.setBounds(10, 10, size, size);
+		iconToggle.addActionListener(l -> {
+			SceneManager.setDarkMode(!isDarkMode);
 		});
+		add(iconToggle);
 		
 		darkModeToggleLabel = new JLabel("Switch");
 		darkModeToggleLabel.setBounds(8, 10 + size, size+10, 20);
 		add(darkModeToggleLabel);
-		add(toggle);
 		
-		Dimension profileChooserSize = new Dimension(200, 170);
+		Dimension profileChooserSize = new Dimension(200, 400);
 		chooser = new ProfileChooser(this, profileChooserSize);
 		chooser.setBounds(SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
 		add(chooser);
@@ -168,10 +169,16 @@ public class TitleScreenUI extends Scene {
 		updatePlayButtonName();
 		chooser.setPopupOpen(false);
 		chooser.setLoggedIn(true);
+		System.out.println(loggedInPlayer.getTheme());
 		SceneManager.setDarkMode(!loggedInPlayer.getTheme());
 		subtitle.setText("Frankie Gonzalez, Aditya Gupta, Ethan Rees, Brian Vu");
 	}
 	
+	/**
+	 * This will update the play button names
+	 *
+	 * @author Ethan Rees
+	 */
 	void updatePlayButtonName() {
 		if(loggedInPlayer == null)
 			titleJButtons[0].setText("Play as Guest");
@@ -203,9 +210,13 @@ public class TitleScreenUI extends Scene {
 		subtitle.setForeground(Color.red);
 	}
 	
+	/*
+	 * The theme has changed
+	 */
 	@Override
 	public void onThemeChange(boolean isDarkMode) {
 		setBackground(getBackgroundColor());
+		iconToggle.setValue(isDarkMode);
 		
 		// update the main buttons
 		for(int i = 0; i < titleJButtons.length; i++) {
@@ -219,7 +230,7 @@ public class TitleScreenUI extends Scene {
 		Color textColor = new Color(getTextColor().getRed(), getTextColor().getGreen(), getTextColor().getBlue(), 100);
 		subtitle.setForeground(error ? Color.red : textColor);
 		
-		// dark mode toggle
+		// dark mode iconToggle
 		darkModeToggleLabel.setForeground(textColor);
 		
 		// profile chooser
