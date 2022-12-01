@@ -191,10 +191,10 @@ public class DBAdaptor {
 			if ( !doesUserExist( user.getUsername(), stmt ) ) {
 				return false;
 			}
-			String sql = "UPDATE Users SET FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName()
-				+ "', Bio = '" + user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = "
-				+ user.getGamesPlayed() + ", Wins = " + user.getWins() + " WHERE UserName = '" + user.getUsername()
-				+ "';";
+			String sql = "UPDATE Users SET UserName = '" + user.getUsername() + "' Password = '" + user.getPassword()
+				+ "' FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName() + "', Bio = '"
+				+ user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = " + user.getGamesPlayed() + ", Wins = "
+				+ user.getWins() + " WHERE UserName = '" + user.getUsername() + "';";
 			stmt.execute( sql );
 			return true;
 		} catch ( SQLException e ) {
