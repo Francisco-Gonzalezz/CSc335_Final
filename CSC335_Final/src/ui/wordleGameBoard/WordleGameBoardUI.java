@@ -26,6 +26,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	public static final int BOARD_CELL_PADDING = 2, BOARD_HORI_PADDING = 190, KEYBOARD_HORI_PADDING = 100;
 	public static final int KEY_TILE_DEFAULT_WIDTH = 60, KEY_TILE_HEIGHT = 55;
 	
+	public static WordleGameBoardUI ui;
+	
 	JPanel displayPanel;
 	JPanel keyboardPanel;
 	JPanel activeRowIndicator;
@@ -33,7 +35,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	GameBoardUITile[][] gameBoardTiles;
 	Font gameBoardFont, keyboardFont;
 	JLabel notification;
-	int activeRow, activeCol;
+	public int activeRow, activeCol;
 	Dimension size;
 	
 	String[][] keyboardButtonCharacters;
@@ -41,6 +43,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	
 	public WordleGameBoardUI(Dimension size) {
 		this.size = size;
+		ui = this;
+		wordleLogic.beginGame();
 		
 		// setup myself
 		setLayout(null);
@@ -259,8 +263,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		// TODO check word stored in currentRow
 		System.out.println(currentRow);
 		
-		boolean temp = false;
-		if(temp) {
+		// check if the word exists
+		if(!wordleLogic.check_for_word(currentRow)) {
 			pushNotification("Word doesn't exist!");
 			
 			// begin shake animations
@@ -271,10 +275,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 			return false;
 		}
 		
-		setLetterStage(0, 0, KeyStage.InWordRightPlace);
-		setLetterStage(0, 1, KeyStage.InWordWrongPlace);
-		setLetterStage(1, 2, KeyStage.InWordWrongPlace);
-
+		wordleLogic.getTheWord(wordleLogic.correctWord, currentRow);
+		
 		// there aren't enough rows left
 		if(activeRow+1 >= ATTEMPT_AMOUNT) {
 			// game over

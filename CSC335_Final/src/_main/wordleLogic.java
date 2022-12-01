@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import ui.wordleGameBoard.WordleGameBoardUI;
+
 public class wordleLogic 
 {
-	static String correctWord;
+	public static String correctWord;
 	static String filename = "src/words.txt";
 	
 	public static void fileReader(String filename) throws IOException
@@ -38,52 +40,56 @@ public class wordleLogic
 		System.out.println(correctWord);
 	}
 	
-	public static void main(String[] args) throws IOException
+	public static void beginGame() {
+		try {
+			fileReader(filename);
+		} catch (Exception e) {
+			
+		}
+	}
+	
+	public static void mains(String[] args) throws IOException
 	{
-		fileReader(filename);
 		
 		for(int i = 0; i < 5; i++)
 		{
 			System.out.println(i);
-			getTheWord(correctWord);
+			getTheWord(correctWord, null);
 		}
 	}
 	
-	public static void getTheWord(String correctWord)
+	public static void getTheWord(String correctWord, String guess)
 	{
 		final String bgGreen = "\u001B[42m";
 		final String BgYellow = "\u001B[43m";
 		final String reset = "\u001B[0m";
 
-		Scanner sc = new Scanner(System.in);
-		String guess = sc.nextLine().toUpperCase();
-		
-		if(checkWord(guess) && check_for_word(guess))
+		//Scanner sc = new Scanner(System.in);
+		//String guess = sc.nextLine().toUpperCase();
+
+		System.out.println(correctWord);System.out.println("a");
+		//loop iterating through each letter of word
+		for(int i = 0; i < 5; i++)
 		{
-			//loop iterating through each letter of word
-			for(int i = 0; i < 5; i++)
+			if(guess.substring(i, i + 1).equals(correctWord.substring(i, i + 1)))
 			{
-				if(guess.substring(i, i + 1).equals(correctWord.substring(i, i + 1)))
-				{
-					//characters match
-					System.out.print(bgGreen + guess.substring(i, i + 1) + reset);
-				}
-				else if(correctWord.indexOf(guess.substring(i, i + 1)) > -1)
-				{
-					//character match but not location
-					System.out.print(BgYellow + guess.substring(i, i + 1) + reset);
-				}
-				else
-				{
-					//letter doesn't exist
-					System.out.print(guess.substring(i, i + 1));
-				}
+				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.InWordRightPlace);
+				//characters match
+				//System.out.print(bgGreen + guess.substring(i, i + 1) + reset);
 			}
-
-			System.out.println("");
+			else if(correctWord.indexOf(guess.substring(i, i + 1)) > -1)
+			{
+				//character match but not location
+				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.InWordWrongPlace);
+				//System.out.print(BgYellow + guess.substring(i, i + 1) + reset);
+			}
+			else
+			{
+				//letter doesn't exist
+				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.NotInWord);
+				//System.out.print(guess.substring(i, i + 1));
+			}
 		}
-
-
 	}
 	
 	public static boolean checkWord(String word) 
