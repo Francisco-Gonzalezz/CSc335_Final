@@ -64,30 +64,23 @@ public class wordleLogic
 		final String BgYellow = "\u001B[43m";
 		final String reset = "\u001B[0m";
 
-		//Scanner sc = new Scanner(System.in);
-		//String guess = sc.nextLine().toUpperCase();
-
-		System.out.println(correctWord);System.out.println("a");
 		//loop iterating through each letter of word
 		for(int i = 0; i < 5; i++)
 		{
 			if(guess.substring(i, i + 1).equals(correctWord.substring(i, i + 1)))
 			{
-				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.InWordRightPlace);
 				//characters match
-				//System.out.print(bgGreen + guess.substring(i, i + 1) + reset);
+				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.InWordRightPlace);
 			}
 			else if(correctWord.indexOf(guess.substring(i, i + 1)) > -1)
 			{
 				//character match but not location
 				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.InWordWrongPlace);
-				//System.out.print(BgYellow + guess.substring(i, i + 1) + reset);
 			}
 			else
 			{
 				//letter doesn't exist
 				WordleGameBoardUI.ui.setLetterStage(WordleGameBoardUI.ui.activeRow, i, KeyStage.NotInWord);
-				//System.out.print(guess.substring(i, i + 1));
 			}
 		}
 	}

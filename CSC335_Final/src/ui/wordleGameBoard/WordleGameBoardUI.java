@@ -41,8 +41,11 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	String[][] keyboardButtonCharacters;
 	KeyboardUITile[][] keyboardTiles;
 	
+	public boolean isGameOver;
+	
 	public WordleGameBoardUI(Dimension size) {
 		this.size = size;
+		this.isGameOver = false;
 		ui = this;
 		wordleLogic.beginGame();
 		
@@ -209,6 +212,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	 * @author Ethan Rees
 	 */
 	public boolean addLetter(char letter) {
+		if(isGameOver) return false;
 		// if the row is full
 		if(activeCol >= WORD_SIZE)
 			return false;
@@ -226,6 +230,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	 * @author Ethan Rees
 	 */
 	public boolean removeLetter() {
+		if(isGameOver) return false;
 		// if the row is empty
 		if(activeCol <= 0)
 			return false;
@@ -242,6 +247,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	 * @author Ethan Rees
 	 */
 	public boolean enterNewRow() {
+		System.out.println("b");
+		if(isGameOver) return false;
 		// not enough letters
 		if(activeCol < WORD_SIZE) {
 			pushNotification("Not enough letters, you need 5!");
@@ -260,9 +267,6 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		for(int i = 0; i < WORD_SIZE; i++)
 			currentRow += gameBoardTiles[activeRow][i].getCharacter();
 		
-		// TODO check word stored in currentRow
-		System.out.println(currentRow);
-		
 		// check if the word exists
 		if(!wordleLogic.check_for_word(currentRow)) {
 			pushNotification("Word doesn't exist!");
@@ -277,16 +281,15 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		
 		wordleLogic.getTheWord(wordleLogic.correctWord, currentRow);
 		
-		// there aren't enough rows left
-		if(activeRow+1 >= ATTEMPT_AMOUNT) {
-			// game over
-			pushNotification("Game Over!");
-			return false;
-		}
-		
 		// begin bounce animations
 		for(int c = 0; c < gameBoardTiles[activeRow].length; c++) {
 			UIAnimator.beginAnimation(gameBoardTiles[activeRow][c], "bounce", c * 0.05, .3);
+		}
+
+		// there aren't enough rows left
+		if(activeRow+1 >= ATTEMPT_AMOUNT || currentRow.equals(wordleLogic.correctWord)) {
+			gameOver();
+			return false;
 		}
 		
 		activeCol = 0;
@@ -295,6 +298,12 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		updateActiveRowIndicator();
 		pushNotification("Your Results...");
 		return true;
+	}
+	
+	public void gameOver() {
+		// game over
+		pushNotification("Game Over!");
+		isGameOver = true;
 	}
 	
 	/**
@@ -343,8 +352,10 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 			removeLetter();
 		// handle enter
-		if(e.getKeyCode() == KeyEvent.VK_ENTER)
+		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+			if(isGameOver) return;
 			enterNewRow();
+		}
 		// handle every other alphabetical character
 		else if(Character.isAlphabetic(e.getKeyCode())) {
 			addLetter(Character.toUpperCase(e.getKeyChar()));
