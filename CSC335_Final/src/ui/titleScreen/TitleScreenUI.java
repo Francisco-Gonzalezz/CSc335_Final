@@ -11,10 +11,13 @@ import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import _main.Boot;
 import _main.KeyStage;
+import _main.wordleLogic;
 import db.DBAdaptor;
 import player.Player;
 import ui.Scene;
@@ -31,11 +34,6 @@ public class TitleScreenUI extends Scene {
 			"Leaderboard",
 			"Help"
 	};
-	Scene[] titleButtonsScenes = {
-			new WordleGameBoardUI(SceneManager.size),
-			new LeaderboardUI(SceneManager.size),
-			new HelpPageUI(SceneManager.size)
-	};
 	
 	JButton[] titleJButtons;
 	
@@ -44,6 +42,8 @@ public class TitleScreenUI extends Scene {
 	
 	JLabel subtitle;
 	JLabel darkModeToggleLabel;
+	
+	JComboBox<String> gameDifficulty;
 	
 	ProfileChooser chooser;
 	IconToggle iconToggle;
@@ -65,7 +65,15 @@ public class TitleScreenUI extends Scene {
 			JButton button = new JButton(titleButtons[i]);
 			final int j = i;
 			button.addActionListener(l -> {
-				SceneManager.setScene(titleButtonsScenes[j]);
+				if(j == 0) {
+					setGameSize();
+					SceneManager.setScene(new WordleGameBoardUI(SceneManager.size));
+				} else if(j == 1) {
+					SceneManager.setScene(new LeaderboardUI(SceneManager.size));
+				} else if(j == 2) {
+					SceneManager.setScene(new HelpPageUI(SceneManager.size));
+				}
+				
 			});
 			button.setBounds((int)(SceneManager.size.width*0.5 - buttonWidth * 0.5), verticalOffset + buttonHeight * i + verticalSpacing*i, buttonWidth, buttonHeight);
 			add(button);
@@ -79,23 +87,31 @@ public class TitleScreenUI extends Scene {
 		subtitle.setBounds((int)(SceneManager.size.width*0.5 - subtitleWidth*0.5),SceneManager.size.height - 105,subtitleWidth,100);
 		add(subtitle);
 		
-		int size = 35;
-		iconToggle = new IconToggle("toLightLogo.png", "toDarkLogo.png", isDarkMode, size, size);
-		iconToggle.setBounds(10, 10, size, size);
+		// create the dark/light toggle
+		int darkLightSize = 35;
+		iconToggle = new IconToggle("toLightLogo.png", "toDarkLogo.png", isDarkMode, darkLightSize, darkLightSize);
+		iconToggle.setBounds(10, 10, darkLightSize, darkLightSize);
 		iconToggle.addActionListener(l -> {
 			SceneManager.setDarkMode(!isDarkMode);
 		});
 		add(iconToggle);
 		
+		// create the dark/light toggle label
 		darkModeToggleLabel = new JLabel("Switch");
-		darkModeToggleLabel.setBounds(8, 10 + size, size+10, 20);
+		darkModeToggleLabel.setBounds(8, 10 + darkLightSize, darkLightSize+10, 20);
 		add(darkModeToggleLabel);
 		
+		// create the profile chooser
 		Dimension profileChooserSize = new Dimension(200, 400);
 		chooser = new ProfileChooser(this, profileChooserSize);
 		chooser.setBounds(SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
 		add(chooser);
 		
+		gameDifficulty = new JComboBox<>(new String[] {"Easy", "Difficult", "Extreme"});
+		gameDifficulty.setBounds(darkLightSize + 30, 10, 100, darkLightSize);
+		add(gameDifficulty);
+		
+		// load up the game
 		updatePlayButtonName();
 		if(loggedInPlayer != null) {
 			chooser.setLoggedIn(true);
@@ -144,6 +160,21 @@ public class TitleScreenUI extends Scene {
 		add(titleTileHolder);
 	}
 	
+	
+	void setGameSize() {
+		int wordLength = 5;
+		int attemptCount = 6;
+		if(gameDifficulty.getSelectedItem().equals("Difficult")) {
+			wordLength = 7;
+			attemptCount = 7;
+		}
+		if(gameDifficulty.getSelectedItem().equals("Extreme")) {
+			wordLength = 10;
+			attemptCount = 8;
+		}
+		WordleGameBoardUI.WORD_SIZE = wordLength;
+		WordleGameBoardUI.ATTEMPT_AMOUNT = attemptCount;
+	}
 	/**
 	 * This is called once the profile chooser has requested a login
 	 *
@@ -229,6 +260,8 @@ public class TitleScreenUI extends Scene {
 		// update the subtitle
 		Color textColor = new Color(getTextColor().getRed(), getTextColor().getGreen(), getTextColor().getBlue(), 100);
 		subtitle.setForeground(error ? Color.red : textColor);
+		
+		setColor(gameDifficulty, 0, 1);
 		
 		// dark mode iconToggle
 		darkModeToggleLabel.setForeground(textColor);

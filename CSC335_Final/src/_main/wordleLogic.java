@@ -36,7 +36,6 @@ public class wordleLogic
 		int wordIndex = (int)(Math.random() * words.length);
 		correctWord = words[wordIndex];
 		
-		
 		System.out.println(correctWord);
 	}
 	

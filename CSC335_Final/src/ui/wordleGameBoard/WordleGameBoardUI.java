@@ -22,7 +22,7 @@ import ui.*;
 public class WordleGameBoardUI extends Scene implements KeyListener {
 	
 	// some settings
-	public static final int WORD_SIZE = 5, ATTEMPT_AMOUNT = 6;
+	public static int WORD_SIZE = 5, ATTEMPT_AMOUNT = 6;
 	public static final int BOARD_CELL_PADDING = 2, BOARD_HORI_PADDING = 190, KEYBOARD_HORI_PADDING = 100;
 	public static final int KEY_TILE_DEFAULT_WIDTH = 60, KEY_TILE_HEIGHT = 55;
 	
