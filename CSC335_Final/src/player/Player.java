@@ -47,6 +47,9 @@ public class Player {
 	}
 
 	public void addGuess(int guess) {
+		if (this.guesses.size() == 7) {
+			this.guesses.pop();
+		}
 		this.guesses.push(guess);
 	}
 
