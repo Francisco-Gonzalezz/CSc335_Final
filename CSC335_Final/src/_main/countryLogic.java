@@ -1,53 +1,45 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
-public class wordleLogic 
+public class countryLogic
 {
 	static String correctWord;
-	static String filename = "src/words.txt";
-	
-	public static void fileReader(String filename) throws IOException
-	{
-		List<String> listOfString = new ArrayList<String>();
-
-		BufferedReader bf = new BufferedReader(new FileReader(filename));
-
-		String line = bf.readLine();
-
-		while (line != null)
+	static String[] names = 
 		{
-			listOfString.add(line.toUpperCase());
-			line = bf.readLine();
-		}
+			"CHILE", "CHINA", "HAITI", "INDIA", 
+			"ITALY", "JAPAN", "MALTA", "NAURU", 
+			"NEPAL", "PALAU", "QATAR", "SAMOA", 
+			"SPAIN", "SYRIA", "TONGA", "YEMEN", 
+			"BENIN", "EGYPT", "GABON", "GHANA", 
+			"KENYA", "LIBYA", "NIGER", "SUDAN"
+		};
 
-		// closing bufferreader object
-		bf.close();
+	public static void countryReader()
+	{		
+		List<String> listOfString = new ArrayList<String>(Arrays.asList(names));
 
-		// storing the data in arraylist to array
 		String[] words = listOfString.toArray(new String[0]);
 		int wordIndex = (int)(Math.random() * words.length);
 		correctWord = words[wordIndex];
 		
-		
 		System.out.println(correctWord);
 	}
 	
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
-		fileReader(filename);
+		countryReader();
 		
 		for(int i = 0; i < 5; i++)
 		{
 			System.out.println(i);
-			getTheWord(correctWord);
+			getTheWord();
 		}
 	}
 	
-	public static void getTheWord(String correctWord)
+	public static void getTheWord()
 	{
 		final String bgGreen = "\u001B[42m";
 		final String BgYellow = "\u001B[43m";
@@ -55,9 +47,10 @@ public class wordleLogic
 
 		Scanner sc = new Scanner(System.in);
 		String guess = sc.nextLine().toUpperCase();
-		
+		System.out.print(check_for_word(guess));
 		if(checkWord(guess) && check_for_word(guess))
 		{
+			System.out.print(check_for_word(guess));
 			//loop iterating through each letter of word
 			for(int i = 0; i < 5; i++)
 			{
@@ -77,13 +70,13 @@ public class wordleLogic
 					System.out.print(guess.substring(i, i + 1));
 				}
 			}
-
 			System.out.println("");
 		}
 
 
 	}
 	
+	//REMOVE AFTER ADDING W UI
 	public static boolean checkWord(String word) 
 	{
 		return word.length()>=5 && word.matches("[a-zA-Z]+");
@@ -91,23 +84,12 @@ public class wordleLogic
 	
     public static boolean check_for_word(String word) 
     {
-        try 
-        {
-            BufferedReader in = new BufferedReader(new FileReader(filename));
-            String str;
-            while ((str = in.readLine()) != null) 
-            {
-                if (str.indexOf(word.toLowerCase()) != -1) 
-                {
-                    return true;
-                }
-            }
-            in.close();
-        } catch (IOException e)
-        {
-        	
-        }
-        return false;
+    	if(Arrays.asList(names).contains(word.toUpperCase()))
+    	{
+    		return true;
+    	}
+    	else
+    		return false;
     }
-	
+
 }
