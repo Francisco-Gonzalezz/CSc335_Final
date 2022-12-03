@@ -1,5 +1,8 @@
 package player;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 /**
  * @author Brian Vu
  */
@@ -13,6 +16,7 @@ public class Player {
 	private boolean lightOrDark;
 	private int gamesPlayed;
 	private int wins;
+	private ArrayDeque<Integer> guesses;
 
 	public Player(String username, String password, String firstName, String lastName) {
 		this.username = username;
@@ -22,8 +26,9 @@ public class Player {
 		this.bio = "";
 		this.truncatedBio = "";
 		this.lightOrDark = true; // true = white, false dark
+		this.guesses = new ArrayDeque<>();
 	}
-	
+
 	public Player(String username, String password) {
 		this.username = username;
 		this.password = password;
@@ -34,12 +39,28 @@ public class Player {
 		this.lightOrDark = true; // true = white, false dark
 		this.firstName = "";
 		this.lastName = "";
+		this.guesses = new ArrayDeque<>();
 	}
-	
+
+	public ArrayDeque<Integer> getQuesses() {
+		return this.guesses;
+	}
+
+	public void addGuess(int guess) {
+		if (this.guesses.size() == 7) {
+			this.guesses.pop();
+		}
+		this.guesses.push(guess);
+	}
+
+	public void removeGuess() {
+		this.guesses.pop();
+	}
+
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
-	
+
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
@@ -65,7 +86,7 @@ public class Player {
 	}
 
 	public void setBio(String bio) {
-		if (bio.length() > 1000) {
+		if (bio.length() == 1000) {
 			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
 			this.bio = bio;
 		} else {
