@@ -18,9 +18,11 @@ public class Player {
 	private int wins;
 	private ArrayDeque<Integer> guesses;
 
-	public Player(String username, String password, String firstName, String lastName) {
+	public Player ( String username, String password, String firstName, String lastName ) {
 		this.username = username;
 		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.gamesPlayed = 0;
 		this.wins = 0;
 		this.bio = "";
@@ -29,7 +31,7 @@ public class Player {
 		this.guesses = new ArrayDeque<>();
 	}
 
-	public Player(String username, String password) {
+	public Player ( String username, String password ) {
 		this.username = username;
 		this.password = password;
 		this.gamesPlayed = 0;
@@ -43,25 +45,25 @@ public class Player {
 	}
 
 	public ArrayDeque<Integer> getQuesses() {
-		return this.guesses;
+		return guesses.clone();
 	}
 
-	public void addGuess(int guess) {
-		if (this.guesses.size() == 7) {
+	public void addGuess( int guess ) {
+		if ( this.guesses.size() == 7 ) {
 			this.guesses.pop();
 		}
-		this.guesses.push(guess);
+		this.guesses.push( guess );
 	}
 
 	public void removeGuess() {
 		this.guesses.pop();
 	}
 
-	public void setFirstName(String firstName) {
+	public void setFirstName( String firstName ) {
 		this.firstName = firstName;
 	}
 
-	public void setLastName(String lastName) {
+	public void setLastName( String lastName ) {
 		this.lastName = lastName;
 	}
 
@@ -73,7 +75,7 @@ public class Player {
 		return this.wins;
 	}
 
-	public void setWins(int wins) {
+	public void setWins( int wins ) {
 		this.wins = wins;
 	}
 
@@ -85,9 +87,9 @@ public class Player {
 		return this.lastName;
 	}
 
-	public void setBio(String bio) {
-		if (bio.length() == 1000) {
-			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
+	public void setBio( String bio ) {
+		if ( bio.length() == 1000 ) {
+			this.truncatedBio = bio.substring( 0, 998 ) + "..."; // max chars = 1000
 			this.bio = bio;
 		} else {
 			this.truncatedBio = bio;
@@ -104,14 +106,14 @@ public class Player {
 	}
 
 	public int getWinRate() {
-		return (this.wins / this.gamesPlayed);
+		return ( this.wins / this.gamesPlayed );
 	}
 
 	public int getGamesPlayed() {
 		return this.gamesPlayed;
 	}
 
-	public void setGamesPlayed(int games) {
+	public void setGamesPlayed( int games ) {
 		this.gamesPlayed = games;
 	}
 
@@ -131,7 +133,7 @@ public class Player {
 		return this.password;
 	}
 
-	public void setTheme(boolean theme) {
+	public void setTheme( boolean theme ) {
 		this.lightOrDark = theme;
 	}
 }
