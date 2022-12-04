@@ -47,7 +47,7 @@ public class Player {
 	}
 	
 	public ArrayDeque<String> getWordsGuessed() {
-		return this.wordsGuessed;
+		return this.wordsGuessed.clone();
 	} 
 	
 	public void addWordGuessed(String word) {
@@ -62,7 +62,7 @@ public class Player {
 	}
 
 	public ArrayDeque<Integer> getQuesses() {
-		return this.guesses;
+		return this.guesses.clone();
 	}
 
 	public void addGuess(int guess) {
