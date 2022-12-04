@@ -219,7 +219,7 @@ public class DBAdaptor {
 	 * Initial implementation of updating game stats for user.
 	 * Needs to use player object to update everything.
 	 */
-	public static void updateStats() {
+	public static void updateStats(Player user) {
 		ArrayDeque<Integer> guesses = new ArrayDeque<>();
 		ArrayDeque<String> words = new ArrayDeque<String>();
 		guesses.add( 1 );
@@ -238,7 +238,6 @@ public class DBAdaptor {
 		words.add( "Java" );
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
-			List<String> toInsert = new ArrayList<>();
 			Statement stmt = DBConnection.createStatement();
 			// Assumes that length of both deques are equal length.
 			for ( int i = 7 ; i >= 1 ; i-- ) {
