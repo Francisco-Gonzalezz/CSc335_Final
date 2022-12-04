@@ -1,8 +1,6 @@
 package player;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Queue;
 
 /**
  * @author Brian Vu
@@ -18,7 +16,7 @@ public class Player {
 	private int gamesPlayed;
 	private int wins;
 	private ArrayDeque<Integer> guesses;
-	private ArrayDeque<ArrayList<String>> allWordsGuesed;
+	private ArrayDeque<String> wordsGuessed;
 	
 
 	public Player(String username, String password, String firstName, String lastName) {
@@ -28,9 +26,9 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = true; // true = white, false dark
+		this.lightOrDark = true; // true = light, false dark
 		this.guesses = new ArrayDeque<>();
-		this.allWordsGuesed = new ArrayDeque<>();
+		this.wordsGuessed = new ArrayDeque<>();
 		
 	}
 
@@ -41,26 +39,26 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = true; // true = white, false dark
+		this.lightOrDark = true; // true = light, false dark
 		this.firstName = "";
 		this.lastName = "";
 		this.guesses = new ArrayDeque<>();
-		this.allWordsGuesed = new ArrayDeque<>();
+		this.wordsGuessed = new ArrayDeque<>();
 	}
 	
-	public ArrayDeque<ArrayList<String>> getAllWordsGuessed() {
-		return this.allWordsGuesed;
+	public ArrayDeque<String> getWordsGuessed() {
+		return this.wordsGuessed;
 	} 
 	
-	public void addWordsGuessed(ArrayList<String> words) {
-		if (this.allWordsGuesed.size() == 7) {
-			this.allWordsGuesed.pop();
+	public void addWordGuessed(String word) {
+		if (this.wordsGuessed.size() == 7) {
+			this.wordsGuessed.pop();
 		}
-		this.allWordsGuesed.push(words);
+		this.wordsGuessed.push(word);
 	}
 	
-	public void removeWordsGuessed() {
-		this.allWordsGuesed.pop();
+	public void removeWordGuessed() {
+		this.wordsGuessed.pop();
 	}
 
 	public ArrayDeque<Integer> getQuesses() {
