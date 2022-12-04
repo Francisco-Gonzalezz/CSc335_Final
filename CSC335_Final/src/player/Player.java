@@ -16,23 +16,26 @@ public class Player {
 	private int gamesPlayed;
 	private int wins;
 	private ArrayDeque<Integer> guesses;
-	private ArrayDeque<String> wordsGuessed;
-	
+	private ArrayDeque<String> gameWords;
+	private ArrayDeque<String> dates;
 
-	public Player(String username, String password, String firstName, String lastName) {
+	public Player ( String username, String password, String firstName, String lastName ) {
 		this.username = username;
 		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.gamesPlayed = 0;
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
 		this.lightOrDark = true; // true = light, false dark
 		this.guesses = new ArrayDeque<>();
-		this.wordsGuessed = new ArrayDeque<>();
-		
+		this.gameWords = new ArrayDeque<>();
+		this.dates = new ArrayDeque<>();
+
 	}
 
-	public Player(String username, String password) {
+	public Player ( String username, String password ) {
 		this.username = username;
 		this.password = password;
 		this.gamesPlayed = 0;
@@ -43,44 +46,60 @@ public class Player {
 		this.firstName = "";
 		this.lastName = "";
 		this.guesses = new ArrayDeque<>();
-		this.wordsGuessed = new ArrayDeque<>();
-	}
-	
-	public ArrayDeque<String> getWordsGuessed() {
-		return this.wordsGuessed.clone();
-	} 
-	
-	public void addWordGuessed(String word) {
-		if (this.wordsGuessed.size() == 7) {
-			this.wordsGuessed.pop();
-		}
-		this.wordsGuessed.push(word);
-	}
-	
-	public void removeWordGuessed() {
-		this.wordsGuessed.pop();
+		this.gameWords = new ArrayDeque<>();
+		this.dates = new ArrayDeque<>();
 	}
 
-	public ArrayDeque<Integer> getQuesses() {
-		return this.guesses.clone();
+	public ArrayDeque<String> getDates() {
+		return dates.clone();
 	}
 
-	public void addGuess(int guess) {
-		if (this.guesses.size() == 7) {
-			this.guesses.pop();
+	public void addDate( String date ) {
+		if ( dates.size() == 7 ) {
+			dates.pop();
 		}
-		this.guesses.push(guess);
+		dates.push( date );
+	}
+
+	public ArrayDeque<String> getGameWords() {
+		return gameWords.clone();
+	}
+
+	public void removeDate() {
+		dates.pop();
+	}
+
+	public void addGameWord( String word ) {
+		if ( gameWords.size() == 7 ) {
+			gameWords.pop();
+		}
+		gameWords.push( word );
+	}
+
+	public void removeGameWord() {
+		gameWords.pop();
+	}
+
+	public ArrayDeque<Integer> getGuesses() {
+		return guesses.clone();
+	}
+
+	public void addGuess( int guess ) {
+		if ( guesses.size() == 7 ) {
+			guesses.pop();
+		}
+		guesses.push( guess );
 	}
 
 	public void removeGuess() {
-		this.guesses.pop();
+		guesses.pop();
 	}
 
-	public void setFirstName(String firstName) {
+	public void setFirstName( String firstName ) {
 		this.firstName = firstName;
 	}
 
-	public void setLastName(String lastName) {
+	public void setLastName( String lastName ) {
 		this.lastName = lastName;
 	}
 
@@ -92,7 +111,7 @@ public class Player {
 		return this.wins;
 	}
 
-	public void setWins(int wins) {
+	public void setWins( int wins ) {
 		this.wins = wins;
 	}
 
@@ -104,9 +123,9 @@ public class Player {
 		return this.lastName;
 	}
 
-	public void setBio(String bio) {
-		if (bio.length() == 1000) {
-			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
+	public void setBio( String bio ) {
+		if ( bio.length() == 1000 ) {
+			this.truncatedBio = bio.substring( 0, 998 ) + "..."; // max chars = 1000
 			this.bio = bio;
 		} else {
 			this.truncatedBio = bio;
@@ -123,14 +142,14 @@ public class Player {
 	}
 
 	public int getWinRate() {
-		return (this.wins / this.gamesPlayed);
+		return ( this.wins / this.gamesPlayed );
 	}
 
 	public int getGamesPlayed() {
 		return this.gamesPlayed;
 	}
 
-	public void setGamesPlayed(int games) {
+	public void setGamesPlayed( int games ) {
 		this.gamesPlayed = games;
 	}
 
@@ -150,7 +169,7 @@ public class Player {
 		return this.password;
 	}
 
-	public void setTheme(boolean theme) {
+	public void setTheme( boolean theme ) {
 		this.lightOrDark = theme;
 	}
 }
