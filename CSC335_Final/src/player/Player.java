@@ -1,7 +1,6 @@
 package player;
 
 import java.util.ArrayDeque;
-import java.util.Queue;
 
 /**
  * @author Brian Vu
@@ -17,6 +16,8 @@ public class Player {
 	private int gamesPlayed;
 	private int wins;
 	private ArrayDeque<Integer> guesses;
+	private ArrayDeque<String> wordsGuessed;
+	
 
 	public Player(String username, String password, String firstName, String lastName) {
 		this.username = username;
@@ -25,8 +26,10 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = true; // true = white, false dark
+		this.lightOrDark = true; // true = light, false dark
 		this.guesses = new ArrayDeque<>();
+		this.wordsGuessed = new ArrayDeque<>();
+		
 	}
 
 	public Player(String username, String password) {
@@ -36,14 +39,30 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = true; // true = white, false dark
+		this.lightOrDark = true; // true = light, false dark
 		this.firstName = "";
 		this.lastName = "";
 		this.guesses = new ArrayDeque<>();
+		this.wordsGuessed = new ArrayDeque<>();
+	}
+	
+	public ArrayDeque<String> getWordsGuessed() {
+		return this.wordsGuessed.clone();
+	} 
+	
+	public void addWordGuessed(String word) {
+		if (this.wordsGuessed.size() == 7) {
+			this.wordsGuessed.pop();
+		}
+		this.wordsGuessed.push(word);
+	}
+	
+	public void removeWordGuessed() {
+		this.wordsGuessed.pop();
 	}
 
 	public ArrayDeque<Integer> getQuesses() {
-		return this.guesses;
+		return this.guesses.clone();
 	}
 
 	public void addGuess(int guess) {
