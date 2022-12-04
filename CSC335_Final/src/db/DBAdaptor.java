@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,6 @@ public class DBAdaptor {
 	 * @return A List of Strings containing the usernames of all registered users.
 	 */
 	public static List<String> getAllUsers() {
-		// TODO: Change to List of Players
 		List<String> users = new ArrayList<>();
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
@@ -118,12 +118,34 @@ public class DBAdaptor {
 				player.setTheme( theme );
 				player.setGamesPlayed( gamesPlayed );
 				player.setWins( wins );
+				setQueuesForPlayer( player, stmt );
 				return player;
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Fills the queues within the player objects from DB.
+	 * @param user
+	 * @param stmt
+	 * @throws SQLException
+	 */
+	private static void setQueuesForPlayer( Player user, Statement stmt ) throws SQLException {
+		String sql = "SELECT * FROM Stats WHERE Username = '" + user.getUsername() + "';";
+		try ( ResultSet result = stmt.executeQuery( sql ) ) {
+			while ( result.next() ) {
+				for ( int i = 7 ; i >= 1 ; i-- ) {
+					String column = result.getString( "game" + i );
+					String[] data = column.split( "," );
+					user.addGameWord( data[0] );
+					user.addGuess( Integer.valueOf( data[1] ) );
+					user.addDate( data[2] );
+				}
+			}
+		}
 	}
 
 	/**
@@ -143,7 +165,6 @@ public class DBAdaptor {
 					+ user.getFirstName() + "', '" + user.getLastName() + "', '" + user.getBio() + "', " + theme
 					+ ", 0, 0);";
 				sql = sql + values;
-				System.out.println( sql );
 				statement.execute( sql );
 				registerUserIntoStats( user.getUsername(), statement );
 				DBConnection.close();
@@ -158,9 +179,15 @@ public class DBAdaptor {
 		return false;
 	}
 
+	
+	/**
+	 * Registers user into Stats table.
+	 * @param username
+	 * @param stmt
+	 * @throws SQLException
+	 */
 	private static void registerUserIntoStats( String username, Statement stmt ) throws SQLException {
 		String sql = "INSERT INTO Stats (Username) VALUES ('" + username + "');";
-		System.out.println( sql );
 		stmt.execute( sql );
 	}
 
@@ -201,12 +228,12 @@ public class DBAdaptor {
 			if ( !doesUserExist( user.getUsername(), stmt ) ) {
 				return false;
 			}
-			String sql = "UPDATE Users SET UserName = '" + user.getUsername() + "' Password = '" + user.getPassword()
-				+ "' FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName() + "', Bio = '"
+			String sql = "UPDATE Users SET UserName = '" + user.getUsername() + "', Password = '" + user.getPassword()
+				+ "', FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName() + "', Bio = '"
 				+ user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = " + user.getGamesPlayed() + ", Wins = "
 				+ user.getWins() + " WHERE UserName = '" + user.getUsername() + "';";
 			stmt.execute( sql );
-			// TODO: Add call to updateStats
+			updateStats( user, stmt );
 			DBConnection.close();
 			return true;
 		} catch ( SQLException e ) {
@@ -216,56 +243,43 @@ public class DBAdaptor {
 	}
 
 	/**
-	 * Initial implementation of updating game stats for user.
-	 * Needs to use player object to update everything.
+	 * Updates the Stats table with the current players queues.
+	 * @param user
+	 * @param stmt
+	 * @throws SQLException
 	 */
-	public static void updateStats(Player user) {
-		ArrayDeque<Integer> guesses = new ArrayDeque<>();
-		ArrayDeque<String> words = new ArrayDeque<String>();
-		guesses.add( 1 );
-		guesses.add( 2 );
-		guesses.add( 3 );
-		guesses.add( 4 );
-		guesses.add( 5 );
-		guesses.add( 6 );
-		guesses.add( 5 );
-		words.add( "foo" );
-		words.add( "bar" );
-		words.add( "CBA" );
-		words.add( "Creation" );
-		words.add( "Center" );
-		words.add( "Component" );
-		words.add( "Java" );
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
-			"passw0rd" ) ) {
-			Statement stmt = DBConnection.createStatement();
-			// Assumes that length of both deques are equal length.
-			for ( int i = 7 ; i >= 1 ; i-- ) {
-				String together = words.pop() + "," + guesses.pop();
-				String sql = "UPDATE Stats SET game" + i + " = '" + together + "' WHERE Username = 'panchothecool'";
-				System.out.println( sql );
-				stmt.execute( sql );
-			}
-
-		} catch ( SQLException e ) {
-			e.printStackTrace();
+	private static void updateStats( Player user, Statement stmt ) throws SQLException {
+		ArrayDeque<Integer> guesses = user.getGuesses();
+		ArrayDeque<String> words = user.getGameWords();
+		LocalDate date = LocalDate.now();
+		String month = date.getMonth().toString();
+		int day = date.getDayOfMonth();
+		int year = date.getYear();
+		month = month.substring( 0, 1 ) + month.substring( 1 ).toLowerCase();
+		// Assumes that length of both deques are equal length.
+		for ( int i = 7 ; i >= 1 ; i-- ) {
+			String together = words.pop() + "," + guesses.pop() + "," + month + " " + day + " " + year;
+			String sql = "UPDATE Stats SET game" + i + " = '" + together + "' WHERE Username = '" + user.getUsername()
+				+ "';";
+			stmt.execute( sql );
 		}
 
 	}
 
 	/**
-	 * Initial implementation of getting Individual player stats. Returns null if player doesn't exist in Stats table.
-	 * @return
+	 * Grabs a list of the last seven game words and the amount of attempts it took to get there. In the format
+	 * "Word,guessAttempts,Date "
+	 * @return An ArrayList containing the last seven game words and attempts.
 	 */
-	public static List<String> getStats() {
+	public static List<String> getStats( Player user ) {
 		List<String> stats = new ArrayList<>();
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement stmt = DBConnection.createStatement();
-			if ( !doesUserExist( "panchothecool", stmt ) ) {
+			if ( !doesUserExist( user.getUsername(), stmt ) ) {
 				return null;
 			}
-			String sql = "SELECT * FROM Stats WHERE Username = 'panchothecool'";
+			String sql = "SELECT * FROM Stats WHERE Username = '" + user.getUsername() + "';";
 			try ( ResultSet result = stmt.executeQuery( sql ) ) {
 				while ( result.next() ) {
 					String game1 = result.getString( "game1" );
