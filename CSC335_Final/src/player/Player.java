@@ -1,6 +1,7 @@
 package player;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Queue;
 
 /**
@@ -17,6 +18,8 @@ public class Player {
 	private int gamesPlayed;
 	private int wins;
 	private ArrayDeque<Integer> guesses;
+	private ArrayDeque<ArrayList<String>> allWordsGuesed;
+	
 
 	public Player(String username, String password, String firstName, String lastName) {
 		this.username = username;
@@ -27,6 +30,8 @@ public class Player {
 		this.truncatedBio = "";
 		this.lightOrDark = true; // true = white, false dark
 		this.guesses = new ArrayDeque<>();
+		this.allWordsGuesed = new ArrayDeque<>();
+		
 	}
 
 	public Player(String username, String password) {
@@ -40,6 +45,22 @@ public class Player {
 		this.firstName = "";
 		this.lastName = "";
 		this.guesses = new ArrayDeque<>();
+		this.allWordsGuesed = new ArrayDeque<>();
+	}
+	
+	public ArrayDeque<ArrayList<String>> getAllWordsGuessed() {
+		return this.allWordsGuesed;
+	} 
+	
+	public void addWordsGuessed(ArrayList<String> words) {
+		if (this.allWordsGuesed.size() == 7) {
+			this.allWordsGuesed.pop();
+		}
+		this.allWordsGuesed.push(words);
+	}
+	
+	public void removeWordsGuessed() {
+		this.allWordsGuesed.pop();
 	}
 
 	public ArrayDeque<Integer> getQuesses() {
