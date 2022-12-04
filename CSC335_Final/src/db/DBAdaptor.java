@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,18 +17,6 @@ import player.Player;
  */
 
 public class DBAdaptor {
-
-	/**
-	 * @author frankiegonzalez Example on how to start a connection to the DB
-	 */
-	public static void connectToDataBase() {
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
-			"passw0rd" ) ) {
-
-		} catch ( SQLException e ) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * This method selects the entire username column from MySQL and parses it to return a username list.
@@ -52,6 +41,11 @@ public class DBAdaptor {
 		return users;
 	}
 
+	/**
+	 * Queries DB to see how many wins a specific player has
+	 * @param String: playerName
+	 * @return an int that has the amount of wins a player has.
+	 */
 	public static int getWinsForPlayer( String playerName ) {
 		int playerWins = 0;
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
@@ -149,10 +143,14 @@ public class DBAdaptor {
 					+ user.getFirstName() + "', '" + user.getLastName() + "', '" + user.getBio() + "', " + theme
 					+ ", 0, 0);";
 				sql = sql + values;
+				System.out.println( sql );
 				statement.execute( sql );
+				registerUserIntoStats( user.getUsername(), statement );
+				DBConnection.close();
 				return true;
 			} else {
 				System.out.println( "This user already exists." );
+				return false;
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
@@ -160,20 +158,32 @@ public class DBAdaptor {
 		return false;
 	}
 
+	private static void registerUserIntoStats( String username, Statement stmt ) throws SQLException {
+		String sql = "INSERT INTO Stats (Username) VALUES ('" + username + "');";
+		System.out.println( sql );
+		stmt.execute( sql );
+	}
+
 	/**
-	 * Helper function that checks to make sure user does not exist before registering. Didn't set this up in SQL
+	 * Helper function that checks to make sure user does not exist before registering. Didn't set this up in SQL.
+	 * Checks for user in Stats adn Users Table, although both should have the same usernames.
 	 * @param String username
 	 * @param Statement stmt
 	 * @return true if user exists, false otherwise.
+	 * @throws SQLException
 	 */
-	private static boolean doesUserExist( String username, Statement stmt ) {
+	private static boolean doesUserExist( String username, Statement stmt ) throws SQLException {
 		try ( ResultSet result = stmt
 			.executeQuery( "SELECT UserName FROM Users WHERE UserName = '" + username + "';" ) ) {
 			while ( result.next() ) {
 				return true;
 			}
-		} catch ( SQLException e ) {
-			e.printStackTrace();
+		}
+		try ( ResultSet result = stmt
+			.executeQuery( "SELECT Username FROM Stats WHERE UserName = '" + username + "';" ) ) {
+			while ( result.next() ) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -196,6 +206,8 @@ public class DBAdaptor {
 				+ user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = " + user.getGamesPlayed() + ", Wins = "
 				+ user.getWins() + " WHERE UserName = '" + user.getUsername() + "';";
 			stmt.execute( sql );
+			// TODO: Add call to updateStats
+			DBConnection.close();
 			return true;
 		} catch ( SQLException e ) {
 			e.printStackTrace();
@@ -203,6 +215,86 @@ public class DBAdaptor {
 		return false;
 	}
 
+	/**
+	 * Initial implementation of updating game stats for user.
+	 * Needs to use player object to update everything.
+	 */
+	public static void updateStats(Player user) {
+		ArrayDeque<Integer> guesses = new ArrayDeque<>();
+		ArrayDeque<String> words = new ArrayDeque<String>();
+		guesses.add( 1 );
+		guesses.add( 2 );
+		guesses.add( 3 );
+		guesses.add( 4 );
+		guesses.add( 5 );
+		guesses.add( 6 );
+		guesses.add( 5 );
+		words.add( "foo" );
+		words.add( "bar" );
+		words.add( "CBA" );
+		words.add( "Creation" );
+		words.add( "Center" );
+		words.add( "Component" );
+		words.add( "Java" );
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			Statement stmt = DBConnection.createStatement();
+			// Assumes that length of both deques are equal length.
+			for ( int i = 7 ; i >= 1 ; i-- ) {
+				String together = words.pop() + "," + guesses.pop();
+				String sql = "UPDATE Stats SET game" + i + " = '" + together + "' WHERE Username = 'panchothecool'";
+				System.out.println( sql );
+				stmt.execute( sql );
+			}
+
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Initial implementation of getting Individual player stats. Returns null if player doesn't exist in Stats table.
+	 * @return
+	 */
+	public static List<String> getStats() {
+		List<String> stats = new ArrayList<>();
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			Statement stmt = DBConnection.createStatement();
+			if ( !doesUserExist( "panchothecool", stmt ) ) {
+				return null;
+			}
+			String sql = "SELECT * FROM Stats WHERE Username = 'panchothecool'";
+			try ( ResultSet result = stmt.executeQuery( sql ) ) {
+				while ( result.next() ) {
+					String game1 = result.getString( "game1" );
+					String game2 = result.getString( "game2" );
+					String game3 = result.getString( "game3" );
+					String game4 = result.getString( "game4" );
+					String game5 = result.getString( "game5" );
+					String game6 = result.getString( "game6" );
+					String game7 = result.getString( "game7" );
+					stats.add( game1 );
+					stats.add( game2 );
+					stats.add( game3 );
+					stats.add( game4 );
+					stats.add( game5 );
+					stats.add( game6 );
+					stats.add( game7 );
+				}
+			}
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+
+		return stats;
+	}
+
+	/**
+	 * Returns a ordered list of Users and their wins to display on the leaderboard.
+	 * @return A List of Strings in the format "Username, wins" where the ordering is descending using number of wins.
+	 */
 	public static List<String> getLeaderBoard() {
 		List<String> list = new ArrayList<>();
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
