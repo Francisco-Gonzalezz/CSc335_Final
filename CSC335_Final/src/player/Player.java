@@ -28,7 +28,7 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = true; // true = light, false dark
+		this.lightOrDark = false; // true = light, false dark
 		this.guesses = new ArrayDeque<>();
 		this.gameWords = new ArrayDeque<>();
 		this.dates = new ArrayDeque<>();
@@ -56,7 +56,7 @@ public class Player {
 
 	public void addDate( String date ) {
 		if ( dates.size() == 7 ) {
-			dates.pop();
+			dates.removeLast();
 		}
 		dates.push( date );
 	}
@@ -66,18 +66,18 @@ public class Player {
 	}
 
 	public void removeDate() {
-		dates.pop();
+		dates.removeLast();
 	}
 
 	public void addGameWord( String word ) {
 		if ( gameWords.size() == 7 ) {
-			gameWords.pop();
+			gameWords.removeLast();
 		}
 		gameWords.push( word );
 	}
 
 	public void removeGameWord() {
-		gameWords.pop();
+		gameWords.removeLast();
 	}
 
 	public ArrayDeque<Integer> getGuesses() {
@@ -86,21 +86,13 @@ public class Player {
 
 	public void addGuess( int guess ) {
 		if ( guesses.size() == 7 ) {
-			guesses.pop();
+			guesses.removeLast();
 		}
 		guesses.push( guess );
 	}
 
 	public void removeGuess() {
-		guesses.pop();
-	}
-
-	public void setFirstName( String firstName ) {
-		this.firstName = firstName;
-	}
-
-	public void setLastName( String lastName ) {
-		this.lastName = lastName;
+		guesses.removeLast();
 	}
 
 	public void addWin() {
@@ -141,8 +133,8 @@ public class Player {
 		return this.truncatedBio;
 	}
 
-	public int getWinRate() {
-		return ( this.wins / this.gamesPlayed );
+	public double getWinRate() {
+		return ( this.wins / (double)this.gamesPlayed );
 	}
 
 	public int getGamesPlayed() {
@@ -151,6 +143,10 @@ public class Player {
 
 	public void setGamesPlayed( int games ) {
 		this.gamesPlayed = games;
+	}
+	
+	public void addGamesPlayed() {
+		this.gamesPlayed++;
 	}
 
 	public void switchTheme() {
@@ -165,6 +161,10 @@ public class Player {
 		return this.username;
 	}
 
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getPassword() {
 		return this.password;
 	}
@@ -172,4 +172,17 @@ public class Player {
 	public void setTheme( boolean theme ) {
 		this.lightOrDark = theme;
 	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	
 }

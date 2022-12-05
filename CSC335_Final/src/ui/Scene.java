@@ -1,3 +1,7 @@
+/**
+ * This class holds the scene type. It has a bunch of helper functions for drawing the UI
+ * @author Ethan Rees
+ */
 package ui;
 
 import java.awt.Color;
@@ -5,6 +9,7 @@ import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import ui.titleScreen.TitleScreenUI;
@@ -128,6 +133,21 @@ public abstract class Scene extends JPanel {
 		return (int)Math.round(x);
 	}
 
+
+	/**
+	 * This helper method helps set component colors
+	 *
+	 * @author Ethan Rees 
+	 * @param component The component
+	 * @param backgroundContrast How much background constrast should there be
+	 * @param borderSize The size of the border
+	 */
+	public void setColor(JComponent component, int backgroundContrast, int borderSize) {
+		component.setBackground(contrastColor(getHylightColor().darker(), backgroundContrast));
+		component.setForeground(getTextColor());
+		component.setBorder(BorderFactory.createLineBorder(getHylightColor(), borderSize));
+	}
+	
 	/**
 	 * This helper class will calculate the X position for a item with a width to be centered
 	 *

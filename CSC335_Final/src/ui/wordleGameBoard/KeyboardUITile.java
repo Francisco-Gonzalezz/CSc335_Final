@@ -134,8 +134,10 @@ public class KeyboardUITile extends JPanel implements MouseListener {
 		
 		// otherwise, run the action event
 		else {
-			if(content.equals("ENTER"))
+			if(content.equals("ENTER")) {
+				if(WordleGameBoardUI.ui.isGameOver) return;
 				ui.enterNewRow();
+			}
 			else
 				ui.removeLetter();
 		}

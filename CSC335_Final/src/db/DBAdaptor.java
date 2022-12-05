@@ -139,10 +139,12 @@ public class DBAdaptor {
 			while ( result.next() ) {
 				for ( int i = 7 ; i >= 1 ; i-- ) {
 					String column = result.getString( "game" + i );
-					String[] data = column.split( "," );
-					user.addGameWord( data[0] );
-					user.addGuess( Integer.valueOf( data[1] ) );
-					user.addDate( data[2] );
+					if(column != null) {
+						String[] data = column.split( "," );
+						user.addGameWord( data[0] );
+						user.addGuess( Integer.valueOf( data[1] ) );
+						user.addDate( data[2] );
+					}
 				}
 			}
 		}
@@ -251,14 +253,12 @@ public class DBAdaptor {
 	private static void updateStats( Player user, Statement stmt ) throws SQLException {
 		ArrayDeque<Integer> guesses = user.getGuesses();
 		ArrayDeque<String> words = user.getGameWords();
-		LocalDate date = LocalDate.now();
-		String month = date.getMonth().toString();
-		int day = date.getDayOfMonth();
-		int year = date.getYear();
-		month = month.substring( 0, 1 ) + month.substring( 1 ).toLowerCase();
+		ArrayDeque<String> dates = user.getDates();
+		
 		// Assumes that length of both deques are equal length.
-		for ( int i = 7 ; i >= 1 ; i-- ) {
-			String together = words.pop() + "," + guesses.pop() + "," + month + " " + day + " " + year;
+		int wordSize = words.size();
+		for (int i = 1; i <= Math.min(7, wordSize); i++) {
+			String together = words.pop() + "," + guesses.pop() + "," + dates.pop();
 			String sql = "UPDATE Stats SET game" + i + " = '" + together + "' WHERE Username = '" + user.getUsername()
 				+ "';";
 			stmt.execute( sql );

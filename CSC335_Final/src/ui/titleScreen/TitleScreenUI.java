@@ -11,10 +11,15 @@ import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import _main.Boot;
 import _main.KeyStage;
+import _main.wordleLogic;
+import db.DBAdaptor;
+import player.Player;
 import ui.Scene;
 import ui.SceneManager;
 import ui.help.HelpPageUI;
@@ -29,11 +34,6 @@ public class TitleScreenUI extends Scene {
 			"Leaderboard",
 			"Help"
 	};
-	Scene[] titleButtonsScenes = {
-			new WordleGameBoardUI(SceneManager.size),
-			new LeaderboardUI(SceneManager.size),
-			new HelpPageUI(SceneManager.size)
-	};
 	
 	JButton[] titleJButtons;
 	
@@ -43,8 +43,13 @@ public class TitleScreenUI extends Scene {
 	JLabel subtitle;
 	JLabel darkModeToggleLabel;
 	
+	JComboBox<String> gameDifficulty;
+	
 	ProfileChooser chooser;
+	IconToggle iconToggle;
 	boolean error;
+	
+	public static Player loggedInPlayer;
 	
 	public TitleScreenUI() {
 		
@@ -60,7 +65,15 @@ public class TitleScreenUI extends Scene {
 			JButton button = new JButton(titleButtons[i]);
 			final int j = i;
 			button.addActionListener(l -> {
-				SceneManager.setScene(titleButtonsScenes[j]);
+				if(j == 0) {
+					setGameSize();
+					SceneManager.setScene(new WordleGameBoardUI(SceneManager.size));
+				} else if(j == 1) {
+					SceneManager.setScene(new LeaderboardUI(SceneManager.size, null));
+				} else if(j == 2) {
+					SceneManager.setScene(new HelpPageUI(SceneManager.size));
+				}
+				
 			});
 			button.setBounds((int)(SceneManager.size.width*0.5 - buttonWidth * 0.5), verticalOffset + buttonHeight * i + verticalSpacing*i, buttonWidth, buttonHeight);
 			add(button);
@@ -74,22 +87,36 @@ public class TitleScreenUI extends Scene {
 		subtitle.setBounds((int)(SceneManager.size.width*0.5 - subtitleWidth*0.5),SceneManager.size.height - 105,subtitleWidth,100);
 		add(subtitle);
 		
-		int size = 35;
-		IconToggle toggle = new IconToggle("toDarkLogo.png", "toLightLogo.png", isDarkMode, size, size);
-		toggle.setBounds(10, 10, size, size);
-		toggle.addActionListener(l -> {
-			SceneManager.setDarkMode(toggle.value);
+		// create the dark/light toggle
+		int darkLightSize = 35;
+		iconToggle = new IconToggle("toLightLogo.png", "toDarkLogo.png", isDarkMode, darkLightSize, darkLightSize);
+		iconToggle.setBounds(10, 10, darkLightSize, darkLightSize);
+		iconToggle.addActionListener(l -> {
+			SceneManager.setDarkMode(!isDarkMode);
 		});
+		add(iconToggle);
 		
+		// create the dark/light toggle leaderboardLabel
 		darkModeToggleLabel = new JLabel("Switch");
-		darkModeToggleLabel.setBounds(8, 10 + size, size+10, 20);
+		darkModeToggleLabel.setBounds(8, 10 + darkLightSize, darkLightSize+10, 20);
 		add(darkModeToggleLabel);
-		add(toggle);
 		
-		Dimension profileChooserSize = new Dimension(200, 170);
+		// create the profile chooser
+		Dimension profileChooserSize = new Dimension(200, 400);
 		chooser = new ProfileChooser(this, profileChooserSize);
 		chooser.setBounds(SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
 		add(chooser);
+		
+		gameDifficulty = new JComboBox<>(new String[] {"Easy", "Difficult", "Extreme"});
+		gameDifficulty.setBounds(darkLightSize + 30, 10, 100, darkLightSize);
+		add(gameDifficulty);
+		
+		// load up the game
+		updatePlayButtonName();
+		if(loggedInPlayer != null) {
+			chooser.setLoggedIn(true);
+			SceneManager.setDarkMode(!loggedInPlayer.getTheme());
+		}
 	}
 	
 	/**
@@ -133,6 +160,21 @@ public class TitleScreenUI extends Scene {
 		add(titleTileHolder);
 	}
 	
+	
+	void setGameSize() {
+		int wordLength = 5;
+		int attemptCount = 6;
+		if(gameDifficulty.getSelectedItem().equals("Difficult")) {
+			wordLength = 7;
+			attemptCount = 7;
+		}
+		if(gameDifficulty.getSelectedItem().equals("Extreme")) {
+			wordLength = 10;
+			attemptCount = 8;
+		}
+		WordleGameBoardUI.WORD_SIZE = wordLength;
+		WordleGameBoardUI.ATTEMPT_AMOUNT = attemptCount;
+	}
 	/**
 	 * This is called once the profile chooser has requested a login
 	 *
@@ -141,9 +183,38 @@ public class TitleScreenUI extends Scene {
 	 * @param password given password
 	 */
 	public void loggedInRequest(String username, String password) {
-		titleJButtons[0].setText("Play as " + username);
+		
+		loggedInPlayer = DBAdaptor.loginToUser(username, password);
+		if(loggedInPlayer == null) {
+			DBAdaptor.registerNewUser(new Player(username, password, "", ""));
+			loggedInPlayer = DBAdaptor.loginToUser(username, password);
+		
+			if(loggedInPlayer == null) {
+				onError(new Exception("Failed to login!"));
+				chooser.setLoggedIn(false);
+				chooser.setPopupOpen(true);
+				return;
+			}
+		}
+		
+		updatePlayButtonName();
 		chooser.setPopupOpen(false);
 		chooser.setLoggedIn(true);
+		System.out.println(loggedInPlayer.getTheme());
+		SceneManager.setDarkMode(!loggedInPlayer.getTheme());
+		subtitle.setText("Frankie Gonzalez, Aditya Gupta, Ethan Rees, Brian Vu");
+	}
+	
+	/**
+	 * This will update the play button names
+	 *
+	 * @author Ethan Rees
+	 */
+	void updatePlayButtonName() {
+		if(loggedInPlayer == null)
+			titleJButtons[0].setText("Play as Guest");
+		else
+			titleJButtons[0].setText("Play as " + loggedInPlayer.getUsername());
 	}
 	
 	/**
@@ -152,6 +223,7 @@ public class TitleScreenUI extends Scene {
 	 * @author Ethan Rees
 	 */
 	public void logOutRequest() {
+		
 		titleJButtons[0].setText("Play as Guest");
 		chooser.setLoggedIn(false);
 	}
@@ -164,14 +236,18 @@ public class TitleScreenUI extends Scene {
 	 * @param error
 	 */
 	public void onError(Exception error) {
-		subtitle.setText(error.toString());
+		subtitle.setText(error.getLocalizedMessage());
 		this.error = true;
 		subtitle.setForeground(Color.red);
 	}
 	
+	/*
+	 * The theme has changed
+	 */
 	@Override
 	public void onThemeChange(boolean isDarkMode) {
 		setBackground(getBackgroundColor());
+		iconToggle.setValue(isDarkMode);
 		
 		// update the main buttons
 		for(int i = 0; i < titleJButtons.length; i++) {
@@ -185,7 +261,9 @@ public class TitleScreenUI extends Scene {
 		Color textColor = new Color(getTextColor().getRed(), getTextColor().getGreen(), getTextColor().getBlue(), 100);
 		subtitle.setForeground(error ? Color.red : textColor);
 		
-		// dark mode toggle
+		setColor(gameDifficulty, 0, 1);
+		
+		// dark mode iconToggle
 		darkModeToggleLabel.setForeground(textColor);
 		
 		// profile chooser
