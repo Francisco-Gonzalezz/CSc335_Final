@@ -15,13 +15,12 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import _main.Boot;
 import _main.KeyStage;
+import _main._SceneManager;
 import _main.wordleLogic;
 import db.DBAdaptor;
 import player.Player;
 import ui.Scene;
-import ui.SceneManager;
 import ui.help.HelpPageUI;
 import ui.leaderboard.LeaderboardUI;
 import ui.wordleGameBoard.GameBoardUITile;
@@ -43,7 +42,7 @@ public class TitleScreenUI extends Scene {
 	JLabel subtitle;
 	JLabel darkModeToggleLabel;
 	
-	JComboBox<String> gameDifficulty;
+	JComboBox<String> gameDifficulty, gameMode;
 	
 	ProfileChooser chooser;
 	IconToggle iconToggle;
@@ -67,15 +66,15 @@ public class TitleScreenUI extends Scene {
 			button.addActionListener(l -> {
 				if(j == 0) {
 					setGameSize();
-					SceneManager.setScene(new WordleGameBoardUI(SceneManager.size));
+					_SceneManager.setScene(new WordleGameBoardUI(_SceneManager.size, gameMode.getSelectedItem().equals("Countries")));
 				} else if(j == 1) {
-					SceneManager.setScene(new LeaderboardUI(SceneManager.size, null));
+					_SceneManager.setScene(new LeaderboardUI(_SceneManager.size, null));
 				} else if(j == 2) {
-					SceneManager.setScene(new HelpPageUI(SceneManager.size));
+					_SceneManager.setScene(new HelpPageUI(_SceneManager.size));
 				}
 				
 			});
-			button.setBounds((int)(SceneManager.size.width*0.5 - buttonWidth * 0.5), verticalOffset + buttonHeight * i + verticalSpacing*i, buttonWidth, buttonHeight);
+			button.setBounds((int)(_SceneManager.size.width*0.5 - buttonWidth * 0.5), verticalOffset + buttonHeight * i + verticalSpacing*i, buttonWidth, buttonHeight);
 			add(button);
 			titleJButtons[i] = button;
 		}
@@ -83,8 +82,8 @@ public class TitleScreenUI extends Scene {
 
 		// create the subtitles
 		subtitle = new JLabel("Frankie Gonzalez, Aditya Gupta, Ethan Rees, Brian Vu");
-		int subtitleWidth = getFontMetrics(subtitle.getFont()).stringWidth(subtitle.getText())+2;
-		subtitle.setBounds((int)(SceneManager.size.width*0.5 - subtitleWidth*0.5),SceneManager.size.height - 105,subtitleWidth,100);
+		int subtitleWidth = getFontMetrics(subtitle.getFont()).stringWidth(subtitle.getText())+10;
+		subtitle.setBounds((int)(_SceneManager.size.width*0.5 - subtitleWidth*0.5),_SceneManager.size.height - 105,subtitleWidth,100);
 		add(subtitle);
 		
 		// create the dark/light toggle
@@ -92,7 +91,7 @@ public class TitleScreenUI extends Scene {
 		iconToggle = new IconToggle("toLightLogo.png", "toDarkLogo.png", isDarkMode, darkLightSize, darkLightSize);
 		iconToggle.setBounds(10, 10, darkLightSize, darkLightSize);
 		iconToggle.addActionListener(l -> {
-			SceneManager.setDarkMode(!isDarkMode);
+			_SceneManager.setDarkMode(!isDarkMode);
 		});
 		add(iconToggle);
 		
@@ -104,18 +103,22 @@ public class TitleScreenUI extends Scene {
 		// create the profile chooser
 		Dimension profileChooserSize = new Dimension(200, 400);
 		chooser = new ProfileChooser(this, profileChooserSize);
-		chooser.setBounds(SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
+		chooser.setBounds(_SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
 		add(chooser);
 		
 		gameDifficulty = new JComboBox<>(new String[] {"Easy", "Difficult", "Extreme"});
 		gameDifficulty.setBounds(darkLightSize + 30, 10, 100, darkLightSize);
 		add(gameDifficulty);
+
+		gameMode = new JComboBox<>(new String[] {"Wordle", "Countries"});
+		gameMode.setBounds(darkLightSize + 140, 10, 100, darkLightSize);
+		add(gameMode);
 		
 		// load up the game
 		updatePlayButtonName();
 		if(loggedInPlayer != null) {
 			chooser.setLoggedIn(true);
-			SceneManager.setDarkMode(!loggedInPlayer.getTheme());
+			_SceneManager.setDarkMode(!loggedInPlayer.getTheme());
 		}
 	}
 	
@@ -135,7 +138,7 @@ public class TitleScreenUI extends Scene {
 		int y = 60;
 		int tileSize = 100;
 		int padding = 5;
-		titleTileHolder.setBounds((int)(SceneManager.size.width*0.5 - width*0.5), 70, 500, 300);
+		titleTileHolder.setBounds((int)(_SceneManager.size.width*0.5 - width*0.5), 70, 500, 300);
 		
 		// create the text
 		Font font = new Font("Arial", Font.BOLD, 75);
@@ -200,8 +203,7 @@ public class TitleScreenUI extends Scene {
 		updatePlayButtonName();
 		chooser.setPopupOpen(false);
 		chooser.setLoggedIn(true);
-		System.out.println(loggedInPlayer.getTheme());
-		SceneManager.setDarkMode(!loggedInPlayer.getTheme());
+		_SceneManager.setDarkMode(!loggedInPlayer.getTheme());
 		subtitle.setText("Frankie Gonzalez, Aditya Gupta, Ethan Rees, Brian Vu");
 	}
 	
@@ -214,7 +216,8 @@ public class TitleScreenUI extends Scene {
 		if(loggedInPlayer == null)
 			titleJButtons[0].setText("Play as Guest");
 		else
-			titleJButtons[0].setText("Play as " + loggedInPlayer.getUsername());
+			titleJButtons[0].setText("Play as " + loggedInPlayer.getDisplayName());
+		
 	}
 	
 	/**
@@ -262,6 +265,7 @@ public class TitleScreenUI extends Scene {
 		subtitle.setForeground(error ? Color.red : textColor);
 		
 		setColor(gameDifficulty, 0, 1);
+		setColor(gameMode, 0, 1);
 		
 		// dark mode iconToggle
 		darkModeToggleLabel.setForeground(textColor);

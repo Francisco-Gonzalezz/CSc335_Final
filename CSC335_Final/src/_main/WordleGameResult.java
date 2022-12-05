@@ -1,3 +1,8 @@
+/**
+ * This class will hold the game results and will be used by the leaderboard/stats
+ * 
+ * @author Ethan Rees
+ */
 package _main;
 
 import java.text.SimpleDateFormat;
@@ -15,8 +20,16 @@ public class WordleGameResult {
 	
 	public int gamesPlayed, gamesWon, gamesLost;
 	public double winRate;
+	int totalGuessSlots;
 	
-	public void publishResults() {
+	/**
+	 * This will save the results to the profile if it exists
+	 *
+	 * @author Ethan Rees 
+	 * @param totalGuessSlots The total number of attempted slots
+	 */
+	public void publishResults(int totalGuessSlots) {
+		this.totalGuessSlots = totalGuessSlots;
 		if(!isGuest) {
 			Player player = TitleScreenUI.loggedInPlayer;
 			player.addGameWord(word);
@@ -39,5 +52,51 @@ public class WordleGameResult {
 			gamesLost = didWin ? 0 : 1;
 			gamesPlayed = 1;
 		}
+	}
+	
+	/**
+	 * This will get the bar stats seen on the stat page, it just collects how many times
+	 * someone guessed a certian amount
+	 *
+	 * @author Ethan Rees 
+	 */
+	public int[] getDistroStats() {
+		int[] results = new int[totalGuessSlots];
+		
+		if(!isGuest) {
+			Player player = TitleScreenUI.loggedInPlayer;
+			for(int guesses : player.getGuesses()) {
+				if(guesses-1 < totalGuessSlots)
+				results[Math.max(0, guesses-1)]++;
+			}
+		} else if(guessAmount-1 < totalGuessSlots) {
+			results[Math.max(0, guessAmount-1)]++;
+		}
+		
+		
+		return results;
+	}
+	
+	/**
+	 * Using the getDistroStats, this will find the normalized % amounts
+	 *
+	 * @author Ethan Rees 
+	 */
+	public double[] getDistroPercentages(int[] stats) {
+		double[] percents = new double[stats.length];
+		
+		// find the largest first
+		double largest = 0;
+		for(int value : stats) {
+			if(value > largest)
+				largest = value;
+		}
+
+		// then normalize the rest
+		for(int i = 0; i < stats.length; i++) {
+			percents[i] = stats[i] / largest;
+		}
+		
+		return percents;
 	}
 }

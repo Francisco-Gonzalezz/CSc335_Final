@@ -34,6 +34,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 	double animationBounceOffset;
 	double animationShakeInfluence, animationShakeOffset;
 	double animationFadeIn;
+	double animationBackgroundColorLerp = 0;
 	
 	int characterOffset;
 	
@@ -48,6 +49,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 		this.animationShakeOffset = 0;
 		this.animationFadeIn = 0;
 		this.characterOffset = 55;
+		this.animationBackgroundColorLerp = 0;
 	}
 	
 	/**
@@ -70,11 +72,12 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 		g2.fillRect(0, 0, getWidth(), getHeight());
 		
 		// draw the background box
-		g2.setColor(ui.contrastColor(getMainColor(), 3));
+		g2.setColor(UIAnimator.lerpColor(ui.contrastColor(getMainColor(), 3), ui.getBackgroundColor(), animationBackgroundColorLerp));
 		g2.fillRoundRect(padding+ui.toInt(animationShakeOffset), padding, getWidth() - padding*2, getHeight() - padding*2, 3, 3);
 		
 		// draw the outline
 		Color borderColor = UIAnimator.lerpColor(getMainColor(), Color.red, animationShakeInfluence);
+		borderColor = UIAnimator.lerpColor(borderColor, ui.getBackgroundColor(), animationBackgroundColorLerp);
 		
 		g2.setColor(borderColor);
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -86,6 +89,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 			Color textColor = ui.getTextColor();
 			textColor = UIAnimator.lerpColor(textColor, ui.getBackgroundColor(), animationBounceOffset);
 			textColor = UIAnimator.lerpColor(textColor, Color.red, animationShakeInfluence);
+			textColor = UIAnimator.lerpColor(textColor, ui.getBackgroundColor(), animationBackgroundColorLerp);
 			g2.setColor(textColor);
 			g2.setFont(font);
 			
@@ -185,6 +189,7 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 	 */
 	@Override
 	public void onAnimationTick(String animationName, double time, double percentageComplete) {
+
 		// handle the bounce animation, uses the equation: (abs(2x-1)-1)^2 * 10
 		if(animationName.equals("bounce")) {
 			this.animationBounceOffset = Math.pow(Math.abs(2 * percentageComplete - 1) - 1, 2)*10;
@@ -202,6 +207,11 @@ public class GameBoardUITile extends JPanel implements UIAnimationReciever {
 		// handles the pop in animation, just lerps between 2 and 0
 		if(animationName.equals("popIn")) {
 			this.animationFadeIn = UIAnimator.lerp(2, 0, percentageComplete);
+		}
+
+		// handle the game over bounce
+		if(animationName.equals("gameOver")) {
+			animationBackgroundColorLerp = UIAnimator.lerp(0, 0.8, percentageComplete);
 		}
 		repaint();
 	}

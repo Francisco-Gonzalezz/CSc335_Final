@@ -1,6 +1,10 @@
+/**
+ * This class holds the stat box for the leaderboard ui
+ */
 package ui.leaderboard;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -19,6 +23,7 @@ public class LeaderboardStatsUI extends Scene {
 	
 	int[] statAmounts = new int[] {1, 2, 3, 4, 5, 6};
 	double[] statAmountPercent = new double[] {0, 0, 0.4, 0.7, 0.3, 1};
+	int selectedBar;
 	
 	Font largeFont, smallFont;
 	WordleGameResult results;
@@ -27,11 +32,15 @@ public class LeaderboardStatsUI extends Scene {
 		this.largeFont = new Font("Arial", Font.BOLD, 32);
 		this.smallFont = new Font("Arial", Font.BOLD, 12);
 		this.results = results;
+		this.selectedBar = results.guessAmount-1;
 		
 		categories[0] = results.gamesPlayed;
 		categories[1] = results.gamesWon;
 		categories[2] = results.gamesLost;
 		categories[3] = (int)(results.winRate*100);
+		
+		statAmounts = results.getDistroStats();
+		statAmountPercent = results.getDistroPercentages(statAmounts);
 	}
 	
 	@Override
@@ -63,6 +72,11 @@ public class LeaderboardStatsUI extends Scene {
 		g2.drawString("Secret Word: " + results.word, 10, offset + areaHeight + 18);
 	}
 	
+	/**
+	 * This will draw the little stat tile at the top
+	 *
+	 * @author Ethan Rees 
+	 */
 	void drawStat(Graphics2D g2, String name, int value, int x, int y, int width, int height) {
 		g2.setStroke(new BasicStroke(1));
 		
@@ -78,9 +92,17 @@ public class LeaderboardStatsUI extends Scene {
 		g2.drawString(name, centeredWidthXOffset(new Dimension(width, 0), (int)labelSize.getWidth())+(int)x, y + 40 + (int)labelSize.getHeight());
 	}
 
+	/**
+	 * This will draw the little bars at the bottom
+	 *
+	 * @author Ethan Rees 
+	 */
 	void drawDisBar(Graphics2D g2, int index, int number, double percent, int y, int width, int height) {
+		Color c = contrastColor(getHylightColor(), 1);
+		if(selectedBar == index)
+			c = contrastColor(getRightPlaceColor(), 2);
 		g2.setStroke(new BasicStroke(2));
-		g2.setColor(contrastColor(getHylightColor(), 1));
+		g2.setColor(c);
 		g2.fillRect(20, y, (int)((width-55)*percent) + 20, height);
 		g2.setColor(contrastColor(g2.getColor(), 1));
 		g2.drawRect(20, y, (int)((width-55)*percent) + 20, height);
@@ -94,6 +116,7 @@ public class LeaderboardStatsUI extends Scene {
 		g2.drawString(number + "", (int)((width-55)*percent) + 26, y+(int)(height*0.5)+4);
 		
 	}
+	
 	// this wont work lol
 	@Override
 	public void onThemeChange(boolean isDarkMode) {}

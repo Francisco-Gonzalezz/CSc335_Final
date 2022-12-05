@@ -114,6 +114,10 @@ public class Player {
 	public String getLastName() {
 		return this.lastName;
 	}
+	
+	public String getDisplayName() {
+		return firstName.isEmpty() ? username : firstName;
+	}
 
 	public void setBio( String bio ) {
 		if ( bio.length() == 1000 ) {
