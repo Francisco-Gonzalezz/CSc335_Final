@@ -12,7 +12,7 @@ import ui.wordleGameBoard.WordleGameBoardUI;
 public class wordleLogic 
 {
 	public static String correctWord;
-	static String filename = "src/words.txt";
+	static String filename = "/Users/adityagupta/Desktop/Wordle/words.txt";
 	
 	public static void fileReader(String filename) throws IOException
 	{
