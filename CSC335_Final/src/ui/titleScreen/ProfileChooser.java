@@ -74,11 +74,9 @@ public class ProfileChooser extends JPanel {
 		profileInfo = new DropdownPanel(title, new String[] {
 			"First Name:",
 			"Last Name:",
-			"Username:",
 			"Password:",
 			"Bio:"
 		}, new JComponent[] {
-			new JTextField(),
 			new JTextField(),
 			new JTextField(),
 			new JTextField(),
@@ -137,9 +135,8 @@ public class ProfileChooser extends JPanel {
 			icon.setCharacter(player.getUsername().charAt(0));
 			profileInfo.getTextComponent(0).setText(player.getFirstName());
 			profileInfo.getTextComponent(1).setText(player.getLastName());
-			profileInfo.getTextComponent(2).setText(player.getUsername());
-			profileInfo.getTextComponent(3).setText(player.getPassword());
-			profileInfo.getTextAreaComponent(4).setText(player.getBio());
+			profileInfo.getTextComponent(2).setText(player.getPassword());
+			profileInfo.getTextAreaComponent(3).setText(player.getBio());
 		}
 		onThemeChanged();
 	}
@@ -153,9 +150,8 @@ public class ProfileChooser extends JPanel {
 		Player player = TitleScreenUI.loggedInPlayer;
 		player.setFirstName(profileInfo.getTextComponent(0).getText());
 		player.setLastName(profileInfo.getTextComponent(1).getText());
-		player.setUsername(profileInfo.getTextComponent(2).getText());
-		player.setPassword(profileInfo.getTextComponent(3).getText());
-		player.setBio(profileInfo.getTextAreaComponent(4).getText());
+		player.setPassword(profileInfo.getTextComponent(2).getText());
+		player.setBio(profileInfo.getTextAreaComponent(3).getText());
 		DBAdaptor.updateUser(player);
 		setPopupOpen(false);
 	}

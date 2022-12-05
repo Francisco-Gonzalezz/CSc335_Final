@@ -1,5 +1,7 @@
 package player;
 
+import java.util.ArrayDeque;
+
 /**
  * @author Brian Vu
  */
@@ -13,8 +15,11 @@ public class Player {
 	private boolean lightOrDark;
 	private int gamesPlayed;
 	private int wins;
+	private ArrayDeque<Integer> guesses;
+	private ArrayDeque<String> gameWords;
+	private ArrayDeque<String> dates;
 
-	public Player(String username, String password, String firstName, String lastName) {
+	public Player ( String username, String password, String firstName, String lastName ) {
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
@@ -23,7 +28,71 @@ public class Player {
 		this.wins = 0;
 		this.bio = "";
 		this.truncatedBio = "";
-		this.lightOrDark = false; // true = white, false dark
+		this.lightOrDark = false; // true = light, false dark
+		this.guesses = new ArrayDeque<>();
+		this.gameWords = new ArrayDeque<>();
+		this.dates = new ArrayDeque<>();
+
+	}
+
+	public Player ( String username, String password ) {
+		this.username = username;
+		this.password = password;
+		this.gamesPlayed = 0;
+		this.wins = 0;
+		this.bio = "";
+		this.truncatedBio = "";
+		this.lightOrDark = true; // true = light, false dark
+		this.firstName = "";
+		this.lastName = "";
+		this.guesses = new ArrayDeque<>();
+		this.gameWords = new ArrayDeque<>();
+		this.dates = new ArrayDeque<>();
+	}
+
+	public ArrayDeque<String> getDates() {
+		return dates.clone();
+	}
+
+	public void addDate( String date ) {
+		if ( dates.size() == 7 ) {
+			dates.removeLast();
+		}
+		dates.push( date );
+	}
+
+	public ArrayDeque<String> getGameWords() {
+		return gameWords.clone();
+	}
+
+	public void removeDate() {
+		dates.removeLast();
+	}
+
+	public void addGameWord( String word ) {
+		if ( gameWords.size() == 7 ) {
+			gameWords.removeLast();
+		}
+		gameWords.push( word );
+	}
+
+	public void removeGameWord() {
+		gameWords.removeLast();
+	}
+
+	public ArrayDeque<Integer> getGuesses() {
+		return guesses.clone();
+	}
+
+	public void addGuess( int guess ) {
+		if ( guesses.size() == 7 ) {
+			guesses.removeLast();
+		}
+		guesses.push( guess );
+	}
+
+	public void removeGuess() {
+		guesses.removeLast();
 	}
 
 	public void addWin() {
@@ -34,7 +103,7 @@ public class Player {
 		return this.wins;
 	}
 
-	public void setWins(int wins) {
+	public void setWins( int wins ) {
 		this.wins = wins;
 	}
 
@@ -46,9 +115,9 @@ public class Player {
 		return this.lastName;
 	}
 
-	public void setBio(String bio) {
-		if (bio.length() > 1000) {
-			this.truncatedBio = bio.substring(0, 998) + "..."; // max chars = 1000
+	public void setBio( String bio ) {
+		if ( bio.length() == 1000 ) {
+			this.truncatedBio = bio.substring( 0, 998 ) + "..."; // max chars = 1000
 			this.bio = bio;
 		} else {
 			this.truncatedBio = bio;
@@ -64,16 +133,20 @@ public class Player {
 		return this.truncatedBio;
 	}
 
-	public int getWinRate() {
-		return (this.wins / this.gamesPlayed);
+	public double getWinRate() {
+		return ( this.wins / (double)this.gamesPlayed );
 	}
 
 	public int getGamesPlayed() {
 		return this.gamesPlayed;
 	}
 
-	public void setGamesPlayed(int games) {
+	public void setGamesPlayed( int games ) {
 		this.gamesPlayed = games;
+	}
+	
+	public void addGamesPlayed() {
+		this.gamesPlayed++;
 	}
 
 	public void switchTheme() {
@@ -96,7 +169,7 @@ public class Player {
 		return this.password;
 	}
 
-	public void setTheme(boolean theme) {
+	public void setTheme( boolean theme ) {
 		this.lightOrDark = theme;
 	}
 

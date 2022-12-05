@@ -5,10 +5,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import player.Player;
 
@@ -20,26 +20,12 @@ import player.Player;
 public class DBAdaptor {
 
 	/**
-	 * @author frankiegonzalez Example on how to start a connection to the DB
-	 */
-	public static void connectToDataBase() {
-		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
-			"passw0rd" ) ) {
-
-		} catch ( SQLException e ) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * This method selects the entire username column from MySQL and parses it to return a username list.
 	 * @author frankiegonzalez
 	 * @return A List of Strings containing the usernames of all registered users.
 	 */
 	public static List<String> getAllUsers() {
-		// TODO: Change to List of Players
 		List<String> users = new ArrayList<>();
-
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
@@ -55,6 +41,11 @@ public class DBAdaptor {
 		return users;
 	}
 
+	/**
+	 * Queries DB to see how many wins a specific player has
+	 * @param String: playerName
+	 * @return an int that has the amount of wins a player has.
+	 */
 	public static int getWinsForPlayer( String playerName ) {
 		int playerWins = 0;
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
@@ -85,9 +76,9 @@ public class DBAdaptor {
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
 			"passw0rd" ) ) {
 			Statement statement = DBConnection.createStatement();
+			String sql = "SELECT UserName, Password FROM Users WHERE userName = '" + username + "';";
 			// Grab username and password from DB
-			try ( ResultSet result = statement
-				.executeQuery( "SELECT UserName, Password FROM Users WHERE userName = '" + username + "';" ) ) {
+			try ( ResultSet result = statement.executeQuery( sql ) ) {
 				while ( result.next() ) {
 					String retUser = result.getString( "UserName" );
 					String retPass = result.getString( "Password" );
@@ -127,12 +118,36 @@ public class DBAdaptor {
 				player.setTheme( theme );
 				player.setGamesPlayed( gamesPlayed );
 				player.setWins( wins );
+				setQueuesForPlayer( player, stmt );
 				return player;
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Fills the queues within the player objects from DB.
+	 * @param user
+	 * @param stmt
+	 * @throws SQLException
+	 */
+	private static void setQueuesForPlayer( Player user, Statement stmt ) throws SQLException {
+		String sql = "SELECT * FROM Stats WHERE Username = '" + user.getUsername() + "';";
+		try ( ResultSet result = stmt.executeQuery( sql ) ) {
+			while ( result.next() ) {
+				for ( int i = 7 ; i >= 1 ; i-- ) {
+					String column = result.getString( "game" + i );
+					if(column != null) {
+						String[] data = column.split( "," );
+						user.addGameWord( data[0] );
+						user.addGuess( Integer.valueOf( data[1] ) );
+						user.addDate( data[2] );
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -153,9 +168,12 @@ public class DBAdaptor {
 					+ ", 0, 0);";
 				sql = sql + values;
 				statement.execute( sql );
+				registerUserIntoStats( user.getUsername(), statement );
+				DBConnection.close();
 				return true;
 			} else {
 				System.out.println( "This user already exists." );
+				return false;
 			}
 		} catch ( SQLException e ) {
 			e.printStackTrace();
@@ -163,20 +181,38 @@ public class DBAdaptor {
 		return false;
 	}
 
+	
 	/**
-	 * Helper function that checks to make sure user does not exist before registering. Didn't set this up in SQL
+	 * Registers user into Stats table.
+	 * @param username
+	 * @param stmt
+	 * @throws SQLException
+	 */
+	private static void registerUserIntoStats( String username, Statement stmt ) throws SQLException {
+		String sql = "INSERT INTO Stats (Username) VALUES ('" + username + "');";
+		stmt.execute( sql );
+	}
+
+	/**
+	 * Helper function that checks to make sure user does not exist before registering. Didn't set this up in SQL.
+	 * Checks for user in Stats adn Users Table, although both should have the same usernames.
 	 * @param String username
 	 * @param Statement stmt
 	 * @return true if user exists, false otherwise.
+	 * @throws SQLException
 	 */
-	private static boolean doesUserExist( String username, Statement stmt ) {
+	private static boolean doesUserExist( String username, Statement stmt ) throws SQLException {
 		try ( ResultSet result = stmt
 			.executeQuery( "SELECT UserName FROM Users WHERE UserName = '" + username + "';" ) ) {
 			while ( result.next() ) {
 				return true;
 			}
-		} catch ( SQLException e ) {
-			e.printStackTrace();
+		}
+		try ( ResultSet result = stmt
+			.executeQuery( "SELECT Username FROM Stats WHERE UserName = '" + username + "';" ) ) {
+			while ( result.next() ) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -191,11 +227,16 @@ public class DBAdaptor {
 			"passw0rd" ) ) {
 			int theme = user.getTheme() ? 1 : 0;
 			Statement stmt = DBConnection.createStatement();
-			String sql = "UPDATE Users SET FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName()
-				+ "', Bio = '" + user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = "
-				+ user.getGamesPlayed() + ", Wins = " + user.getWins() + " WHERE UserName = '" + user.getUsername()
-				+ "';";
+			if ( !doesUserExist( user.getUsername(), stmt ) ) {
+				return false;
+			}
+			String sql = "UPDATE Users SET UserName = '" + user.getUsername() + "', Password = '" + user.getPassword()
+				+ "', FirstName = '" + user.getFirstName() + "', LastName = '" + user.getLastName() + "', Bio = '"
+				+ user.getBio() + "', LightOrDark = " + theme + ", GamesPlayed = " + user.getGamesPlayed() + ", Wins = "
+				+ user.getWins() + " WHERE UserName = '" + user.getUsername() + "';";
 			stmt.execute( sql );
+			updateStats( user, stmt );
+			DBConnection.close();
 			return true;
 		} catch ( SQLException e ) {
 			e.printStackTrace();
@@ -203,6 +244,71 @@ public class DBAdaptor {
 		return false;
 	}
 
+	/**
+	 * Updates the Stats table with the current players queues.
+	 * @param user
+	 * @param stmt
+	 * @throws SQLException
+	 */
+	private static void updateStats( Player user, Statement stmt ) throws SQLException {
+		ArrayDeque<Integer> guesses = user.getGuesses();
+		ArrayDeque<String> words = user.getGameWords();
+		ArrayDeque<String> dates = user.getDates();
+		
+		// Assumes that length of both deques are equal length.
+		int wordSize = words.size();
+		for (int i = 1; i <= Math.min(7, wordSize); i++) {
+			String together = words.pop() + "," + guesses.pop() + "," + dates.pop();
+			String sql = "UPDATE Stats SET game" + i + " = '" + together + "' WHERE Username = '" + user.getUsername()
+				+ "';";
+			stmt.execute( sql );
+		}
+
+	}
+
+	/**
+	 * Grabs a list of the last seven game words and the amount of attempts it took to get there. In the format
+	 * "Word,guessAttempts,Date "
+	 * @return An ArrayList containing the last seven game words and attempts.
+	 */
+	public static List<String> getStats( Player user ) {
+		List<String> stats = new ArrayList<>();
+		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",
+			"passw0rd" ) ) {
+			Statement stmt = DBConnection.createStatement();
+			if ( !doesUserExist( user.getUsername(), stmt ) ) {
+				return null;
+			}
+			String sql = "SELECT * FROM Stats WHERE Username = '" + user.getUsername() + "';";
+			try ( ResultSet result = stmt.executeQuery( sql ) ) {
+				while ( result.next() ) {
+					String game1 = result.getString( "game1" );
+					String game2 = result.getString( "game2" );
+					String game3 = result.getString( "game3" );
+					String game4 = result.getString( "game4" );
+					String game5 = result.getString( "game5" );
+					String game6 = result.getString( "game6" );
+					String game7 = result.getString( "game7" );
+					stats.add( game1 );
+					stats.add( game2 );
+					stats.add( game3 );
+					stats.add( game4 );
+					stats.add( game5 );
+					stats.add( game6 );
+					stats.add( game7 );
+				}
+			}
+		} catch ( SQLException e ) {
+			e.printStackTrace();
+		}
+
+		return stats;
+	}
+
+	/**
+	 * Returns a ordered list of Users and their wins to display on the leaderboard.
+	 * @return A List of Strings in the format "Username, wins" where the ordering is descending using number of wins.
+	 */
 	public static List<String> getLeaderBoard() {
 		List<String> list = new ArrayList<>();
 		try ( Connection DBConnection = DriverManager.getConnection( "jdbc:mysql://69.244.24.13:3306/wordle", "admin",

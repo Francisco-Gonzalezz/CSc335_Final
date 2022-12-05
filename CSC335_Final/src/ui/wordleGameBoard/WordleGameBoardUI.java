@@ -15,11 +15,15 @@ import java.util.Scanner;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.mysql.cj.xdevapi.Result;
+
 import _main.*;
 import ui.*;
+import ui.leaderboard.LeaderboardUI;
+import ui.titleScreen.TitleScreenUI;
 
 
-public class WordleGameBoardUI extends Scene implements KeyListener {
+public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimationReciever{
 	
 	// some settings
 	public static int WORD_SIZE = 5, ATTEMPT_AMOUNT = 6;
@@ -40,6 +44,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	
 	String[][] keyboardButtonCharacters;
 	KeyboardUITile[][] keyboardTiles;
+	WordleGameResult gameResult;
 	
 	public boolean isGameOver;
 	
@@ -48,6 +53,10 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		this.isGameOver = false;
 		ui = this;
 		wordleLogic.beginGame();
+		
+		gameResult = new WordleGameResult();
+		gameResult.isGuest = TitleScreenUI.loggedInPlayer == null;
+		gameResult.word = wordleLogic.correctWord;
 		
 		// setup myself
 		setLayout(null);
@@ -247,7 +256,6 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 	 * @author Ethan Rees
 	 */
 	public boolean enterNewRow() {
-		System.out.println("b");
 		if(isGameOver) return false;
 		// not enough letters
 		if(activeCol < WORD_SIZE) {
@@ -288,7 +296,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 
 		// there aren't enough rows left
 		if(activeRow+1 >= ATTEMPT_AMOUNT || currentRow.equals(wordleLogic.correctWord)) {
-			gameOver();
+			gameOver(currentRow.equals(wordleLogic.correctWord));
 			return false;
 		}
 		
@@ -300,10 +308,14 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		return true;
 	}
 	
-	public void gameOver() {
+	public void gameOver(boolean didWin) {
 		// game over
 		pushNotification("Game Over!");
 		isGameOver = true;
+		gameResult.guessAmount = activeRow+1;
+		gameResult.didWin = didWin;
+		// wait 3 seconds, then exit
+		UIAnimator.beginAnimation(this, "exit", 3, 0.1);
 	}
 	
 	/**
@@ -386,4 +398,16 @@ public class WordleGameBoardUI extends Scene implements KeyListener {
 		activeRowIndicator.setBounds(160, 30+activeRow * cellHeight+BOARD_CELL_PADDING*2, 5, cellHeight-BOARD_CELL_PADDING*4);
 	}
 
+	@Override
+	public void onAnimationTick(String animationName, double time, double percentageComplete) {
+		
+	}
+
+	@Override
+	public void onAnimationFinish(String animationName) {
+		if(animationName.equals("exit")) {
+			gameResult.publishResults();
+			SceneManager.setScene(new LeaderboardUI(size, gameResult));
+		}
+	}
 }

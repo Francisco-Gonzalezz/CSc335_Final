@@ -69,7 +69,7 @@ public class TitleScreenUI extends Scene {
 					setGameSize();
 					SceneManager.setScene(new WordleGameBoardUI(SceneManager.size));
 				} else if(j == 1) {
-					SceneManager.setScene(new LeaderboardUI(SceneManager.size));
+					SceneManager.setScene(new LeaderboardUI(SceneManager.size, null));
 				} else if(j == 2) {
 					SceneManager.setScene(new HelpPageUI(SceneManager.size));
 				}
@@ -96,7 +96,7 @@ public class TitleScreenUI extends Scene {
 		});
 		add(iconToggle);
 		
-		// create the dark/light toggle label
+		// create the dark/light toggle leaderboardLabel
 		darkModeToggleLabel = new JLabel("Switch");
 		darkModeToggleLabel.setBounds(8, 10 + darkLightSize, darkLightSize+10, 20);
 		add(darkModeToggleLabel);
