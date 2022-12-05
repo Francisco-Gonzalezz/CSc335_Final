@@ -347,7 +347,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 		UIAnimator.beginAnimation(this, "exit", 4, 0.1);
 		for(int r = 0; r < ATTEMPT_AMOUNT; r++) {
 			for(int c = 0; c < WORD_SIZE; c++) {
-				UIAnimator.beginAnimation(gameBoardTiles[r][c], r == activeRow ? "bounce" : "gameOver", 0.5 + (r*0.2 + c*0.03), r == activeRow ? 0.7 : 1.5);
+				boolean didWinRow = r == activeRow && didWin;
+				UIAnimator.beginAnimation(gameBoardTiles[r][c], didWinRow ? "bounce" : "gameOver", 0.5 + (r*0.2 + c*0.03), didWinRow ? 0.7 : 1.5);
 			}
 		}
 		
