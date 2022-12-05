@@ -8,10 +8,14 @@ package ui.wordleGameBoard;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
 import java.util.Scanner;
 
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -48,10 +52,14 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 	
 	public boolean isGameOver;
 	
-	public WordleGameBoardUI(Dimension size) {
+	JFrame countryWindow;
+	JLabel countryWindowText;
+	
+	public WordleGameBoardUI(Dimension size, boolean isCountries) {
 		this.size = size;
 		this.isGameOver = false;
 		ui = this;
+		
 		wordleLogic.beginGame();
 		
 		gameResult = new WordleGameResult();
@@ -79,6 +87,27 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 		add(setupDisplayPanel());
 		add(setupKeyboardPanel());
 		createExitButton();
+		
+		// if we are playing countries, create the country help window
+		if(isCountries) {
+			countryWindow = new JFrame("Country Hint");
+			countryWindow.setVisible(true);
+			countryWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			countryWindow.setSize(new Dimension(512, 512));
+			countryWindow.setAlwaysOnTop(true);
+			
+			String imagePath = "src/" + wordleLogic.correctWord.toLowerCase() + ".png";
+			countryWindowText = new JLabel("No image found! Looking for " + imagePath);
+			countryWindowText.setIcon(new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(512, 512, Image.SCALE_SMOOTH)));
+			countryWindow.setLayout(null);
+			countryWindowText.setBounds(0, 0, 512, 512);
+			countryWindow.add(countryWindowText);
+			
+			exitButton.addActionListener(l -> {
+				countryWindow.setVisible(false);
+				countryWindow.dispose();
+			});
+		}
 	}
 	
 	/**
@@ -315,7 +344,18 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 		gameResult.guessAmount = activeRow+1;
 		gameResult.didWin = didWin;
 		// wait 3 seconds, then exit
-		UIAnimator.beginAnimation(this, "exit", 3, 0.1);
+		UIAnimator.beginAnimation(this, "exit", 4, 0.1);
+		for(int r = 0; r < ATTEMPT_AMOUNT; r++) {
+			for(int c = 0; c < WORD_SIZE; c++) {
+				boolean didWinRow = r == activeRow && didWin;
+				UIAnimator.beginAnimation(gameBoardTiles[r][c], didWinRow ? "bounce" : "gameOver", 0.5 + (r*0.2 + c*0.03), didWinRow ? 0.7 : 1.5);
+			}
+		}
+		
+		if(countryWindow != null) {
+			countryWindow.setVisible(false);
+			countryWindow.dispose();
+		}
 	}
 	
 	/**
@@ -351,6 +391,9 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 		keyboardPanel.repaint();
 		updateActiveRowIndicator();
 		activeRowIndicator.repaint();
+		
+		if(countryWindow != null) countryWindow.getContentPane().setBackground(getBackgroundColor());
+		if(countryWindowText != null) countryWindowText.setForeground(getTextColor());
 	}
 	
 	/**
@@ -360,6 +403,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if(e.isControlDown()) return;
 		// handle backspace
 		if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
 			removeLetter();
@@ -406,8 +450,8 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 	@Override
 	public void onAnimationFinish(String animationName) {
 		if(animationName.equals("exit")) {
-			gameResult.publishResults();
-			SceneManager.setScene(new LeaderboardUI(size, gameResult));
+			gameResult.publishResults(ATTEMPT_AMOUNT);
+			_SceneManager.setScene(new LeaderboardUI(size, gameResult));
 		}
 	}
 }

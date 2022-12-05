@@ -132,7 +132,7 @@ public class ProfileChooser extends JPanel {
 		
 		if(isLoggedIn && TitleScreenUI.loggedInPlayer != null) {
 			Player player = TitleScreenUI.loggedInPlayer;
-			icon.setCharacter(player.getUsername().charAt(0));
+			icon.setCharacter(player.getDisplayName().charAt(0));
 			profileInfo.getTextComponent(0).setText(player.getFirstName());
 			profileInfo.getTextComponent(1).setText(player.getLastName());
 			profileInfo.getTextComponent(2).setText(player.getPassword());
@@ -154,6 +154,8 @@ public class ProfileChooser extends JPanel {
 		player.setBio(profileInfo.getTextAreaComponent(3).getText());
 		DBAdaptor.updateUser(player);
 		setPopupOpen(false);
+		title.updatePlayButtonName();
+		icon.setCharacter(player.getDisplayName().charAt(0));
 	}
 	
 	/**

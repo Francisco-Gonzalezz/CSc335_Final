@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import _main._SceneManager;
 import ui.titleScreen.TitleScreenUI;
 
 public abstract class Scene extends JPanel {
@@ -21,7 +22,7 @@ public abstract class Scene extends JPanel {
 	
 	/**
 	 * This method will enter and exit dark mode, this shouldn't ever be called unless
-	 * its called from SceneManager!
+	 * its called from _SceneManager!
 	 *
 	 * @author Ethan Rees 
 	 * @param isDarkMode
@@ -47,7 +48,7 @@ public abstract class Scene extends JPanel {
 		exitButton = new JButton("< exit");
 		exitButton.setBounds(5, 5, 60, 40);
 		exitButton.addActionListener(l -> {
-			SceneManager.setScene(new TitleScreenUI());
+			_SceneManager.setScene(new TitleScreenUI());
 		});
 		add(exitButton);
 	}

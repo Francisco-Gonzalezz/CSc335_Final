@@ -18,11 +18,11 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListModel;
 
+import _main._SceneManager;
 import _main.WordleGameResult;
 import db.DBAdaptor;
 import player.Player;
 import ui.Scene;
-import ui.SceneManager;
 import ui.titleScreen.TitleScreenUI;
 
 public class LeaderboardUI extends Scene {
@@ -106,7 +106,7 @@ public class LeaderboardUI extends Scene {
 		int labelWidth = getFontMetrics(font).stringWidth(text);
 		JLabel label = new JLabel(text);
 		label.setFont(font);
-		label.setBounds(centeredWidthXOffset(SceneManager.size, labelWidth) + x, y, labelWidth, height);
+		label.setBounds(centeredWidthXOffset(_SceneManager.size, labelWidth) + x, y, labelWidth, height);
 		return label;
 	}
 	
