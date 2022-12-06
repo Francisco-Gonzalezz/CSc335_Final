@@ -9,6 +9,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 
 import javax.swing.JPanel;
@@ -16,7 +18,7 @@ import javax.swing.JPanel;
 import _main.WordleGameResult;
 import ui.Scene;
 
-public class LeaderboardStatsUI extends Scene {
+public class LeaderboardStatsUI extends Scene implements MouseListener {
 	
 	int[] categories = new int[] {1, 1, 0, 100};
 	String[] categoryNames = new String[] {"Played", "Win", "Lost", "Win %"};
@@ -41,6 +43,7 @@ public class LeaderboardStatsUI extends Scene {
 		
 		statAmounts = results.getDistroStats();
 		statAmountPercent = results.getDistroPercentages(statAmounts);
+		addMouseListener(this);
 	}
 	
 	@Override
@@ -69,7 +72,7 @@ public class LeaderboardStatsUI extends Scene {
 			drawDisBar(g2, i, statAmounts[i], statAmountPercent[i], buffer * (i) + barHeight * i + offset, getWidth(), barHeight);
 		}
 		
-		g2.drawString("Secret Word: " + results.word, 10, offset + areaHeight + 18);
+		g2.drawString("Secret Word: " + results.word + " (click to share)", 10, offset + areaHeight + 18);
 	}
 	
 	/**
@@ -120,4 +123,25 @@ public class LeaderboardStatsUI extends Scene {
 	// this wont work lol
 	@Override
 	public void onThemeChange(boolean isDarkMode) {}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		results.shareToCopy();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
 }

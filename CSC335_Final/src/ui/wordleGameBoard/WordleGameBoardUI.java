@@ -343,6 +343,14 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 		isGameOver = true;
 		gameResult.guessAmount = activeRow+1;
 		gameResult.didWin = didWin;
+		
+		gameResult.tiles = new KeyStage[ATTEMPT_AMOUNT][WORD_SIZE];
+		for(int r = 0; r < ATTEMPT_AMOUNT; r++) {
+			for(int c = 0; c < WORD_SIZE; c++) {
+				gameResult.tiles[r][c] = gameBoardTiles[r][c].stage;
+			}
+		}
+		
 		// wait 3 seconds, then exit
 		UIAnimator.beginAnimation(this, "exit", 4, 0.1);
 		for(int r = 0; r < ATTEMPT_AMOUNT; r++) {
