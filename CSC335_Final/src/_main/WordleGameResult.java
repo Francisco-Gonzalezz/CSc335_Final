@@ -6,6 +6,9 @@
 package _main;
 
 import java.text.SimpleDateFormat;
+import java.awt.datatransfer.StringSelection;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.util.Calendar;
 
 import db.DBAdaptor;
@@ -21,6 +24,7 @@ public class WordleGameResult {
 	public int gamesPlayed, gamesWon, gamesLost;
 	public double winRate;
 	int totalGuessSlots;
+	public KeyStage[][] tiles;
 	
 	/**
 	 * This will save the results to the profile if it exists
@@ -98,5 +102,28 @@ public class WordleGameResult {
 		}
 		
 		return percents;
+	}
+	
+	public void shareToCopy() {
+		String soFar = "Wordle ";
+		soFar += (guessAmount) + "/" + totalGuessSlots;
+		soFar += " ";
+		for(int r = 0; r < Math.min(guessAmount, tiles.length); r++) {
+			for(int c = 0; c < tiles[r].length; c++) {
+				if(tiles[r][c] == KeyStage.InWordRightPlace)
+					soFar += "🟩";
+				else if(tiles[r][c] == KeyStage.InWordWrongPlace)
+					soFar += "🟨";
+				else
+					soFar += "⬛";
+			}
+			soFar += "\n";
+		}
+		
+		StringSelection stringSelection = new StringSelection(soFar);
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		clipboard.setContents(stringSelection, null);
+		
+		System.out.println(soFar);
 	}
 }
