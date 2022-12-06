@@ -319,7 +319,6 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 			return false;
 		}
 		
-		System.out.println(wordleLogic.correctWord);
 		wordleLogic.getTheWord(wordleLogic.correctWord, currentRow);
 		
 		// begin bounce animations
