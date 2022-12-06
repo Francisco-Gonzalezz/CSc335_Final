@@ -106,12 +106,12 @@ public class TitleScreenUI extends Scene {
 		chooser.setBounds(_SceneManager.size.width - 18 - profileChooserSize.width, 5, profileChooserSize.width, profileChooserSize.height);
 		add(chooser);
 		
-		gameDifficulty = new JComboBox<>(new String[] {"Easy", "Difficult", "Extreme"});
-		gameDifficulty.setBounds(darkLightSize + 30, 10, 100, darkLightSize);
-		add(gameDifficulty);
+		//gameDifficulty = new JComboBox<>(new String[] {"Normal", ""});
+		//gameDifficulty.setBounds(darkLightSize + 30, 10, 100, darkLightSize);
+		//add(gameDifficulty);
 
 		gameMode = new JComboBox<>(new String[] {"Wordle", "Countries"});
-		gameMode.setBounds(darkLightSize + 140, 10, 100, darkLightSize);
+		gameMode.setBounds(darkLightSize + 30, 10, 100, darkLightSize);
 		add(gameMode);
 		
 		// load up the game
@@ -167,14 +167,6 @@ public class TitleScreenUI extends Scene {
 	void setGameSize() {
 		int wordLength = 5;
 		int attemptCount = 6;
-		if(gameDifficulty.getSelectedItem().equals("Difficult")) {
-			wordLength = 7;
-			attemptCount = 7;
-		}
-		if(gameDifficulty.getSelectedItem().equals("Extreme")) {
-			wordLength = 10;
-			attemptCount = 8;
-		}
 		WordleGameBoardUI.WORD_SIZE = wordLength;
 		WordleGameBoardUI.ATTEMPT_AMOUNT = attemptCount;
 	}
@@ -264,7 +256,6 @@ public class TitleScreenUI extends Scene {
 		Color textColor = new Color(getTextColor().getRed(), getTextColor().getGreen(), getTextColor().getBlue(), 100);
 		subtitle.setForeground(error ? Color.red : textColor);
 		
-		setColor(gameDifficulty, 0, 1);
 		setColor(gameMode, 0, 1);
 		
 		// dark mode iconToggle
