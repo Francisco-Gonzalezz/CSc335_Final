@@ -39,11 +39,16 @@ public class wordleLogic
 		System.out.println(correctWord);
 	}
 	
-	public static void beginGame() {
-		try {
-			fileReader(filename);
-		} catch (Exception e) {
-			
+	public static void beginGame(boolean isCountry) {
+		if(isCountry) {
+			countryLogic.countryReader();
+			correctWord = countryLogic.correctWord;
+		} else {
+			try {
+				fileReader(filename);
+			} catch (Exception e) {
+				
+			}
 		}
 	}
 	

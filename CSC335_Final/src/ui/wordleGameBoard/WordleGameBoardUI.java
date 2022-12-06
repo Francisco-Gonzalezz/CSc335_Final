@@ -60,7 +60,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 		this.isGameOver = false;
 		ui = this;
 		
-		wordleLogic.beginGame();
+		wordleLogic.beginGame(isCountries);
 		
 		gameResult = new WordleGameResult();
 		gameResult.isGuest = TitleScreenUI.loggedInPlayer == null;
@@ -96,7 +96,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 			countryWindow.setSize(new Dimension(512, 512));
 			countryWindow.setAlwaysOnTop(true);
 			
-			String imagePath = "src/" + wordleLogic.correctWord.toLowerCase() + ".png";
+			String imagePath = "images/" + wordleLogic.correctWord + ".png";
 			countryWindowText = new JLabel("No image found! Looking for " + imagePath);
 			countryWindowText.setIcon(new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(512, 512, Image.SCALE_SMOOTH)));
 			countryWindow.setLayout(null);
@@ -305,7 +305,10 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 			currentRow += gameBoardTiles[activeRow][i].getCharacter();
 		
 		// check if the word exists
-		if(!wordleLogic.check_for_word(currentRow)) {
+		boolean wordExists = wordleLogic.check_for_word(currentRow);
+		if(!wordExists)
+			wordExists = countryLogic.check_for_word(currentRow);
+		if(!wordExists) {
 			pushNotification("Word doesn't exist!");
 			
 			// begin shake animations
@@ -316,6 +319,7 @@ public class WordleGameBoardUI extends Scene implements KeyListener, UIAnimation
 			return false;
 		}
 		
+		System.out.println(wordleLogic.correctWord);
 		wordleLogic.getTheWord(wordleLogic.correctWord, currentRow);
 		
 		// begin bounce animations
